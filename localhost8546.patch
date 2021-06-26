@@ -1,0 +1,56 @@
+diff --git a/packages/contracts/hardhat.config.js b/packages/contracts/hardhat.config.js
+index bee6df2..d85a7e8 100644
+--- a/packages/contracts/hardhat.config.js
++++ b/packages/contracts/hardhat.config.js
+@@ -11,6 +11,11 @@ const bscParams = require("./mainnetDeployment/deploymentParams.bsc.js");
+ 
+ const params = {
+     "bsc": bscParams,
++    "localhost8546": {
++        ...bscParams,
++        // 不需要 verify
++        ETHERSCAN_BASE_URL: null,
++    },
+ };
+ 
+ const accounts = require("./hardhatAccountsList2k.js");
+@@ -99,6 +104,10 @@ module.exports = {
+                 getSecret('DEPLOYER_PRIVATEKEY', '0x60ddfe7f579ab6867cbe7a2dc03853dc141d7a4ab6dbefc0dae2d2b1bd4e487f'),
+             ]
+         },
++        localhost8546: {
++            url: 'http://127.0.0.1:8546',
++            gasPrice: 'auto',
++        },
+     },
+     etherscan: {
+         apiKey: getSecret("ETHERSCAN_API_KEY")
+@@ -118,13 +127,27 @@ task("upgrade", "Upgrade specified contract")
+     .setAction(
+         async ({ name }, env) => {
+             // ensure non-empty deployer
+-            const [deployer] = await env.ethers.getSigners();
++            let [deployer] = await env.ethers.getSigners();
+             if (!deployer) {
+                 throw new Error("deployer is not set..");
+             } else {
+                 console.log("Deployer is " + deployer.address);
+             }
+ 
++            if (env.network.name === 'localhost8546') {
++                // deployer
++                await env.network.provider.request({
++                    method: "hardhat_impersonateAccount",
++                    params: ["0xc839C1A7daa991717ad58Cd0179e6b3e3e70C579"]}
++                );
++                await network.provider.send("hardhat_setBalance", [
++                    "0xc839C1A7daa991717ad58Cd0179e6b3e3e70C579",
++                    ethers.utils.hexValue(ethers.utils.parseEther('10')),  // 10 ether
++                ]);
++                deployer = await ethers.getSigner("0xc839C1A7daa991717ad58Cd0179e6b3e3e70C579");
++                console.log('new deployer', deployer.address, env.network.name);
++            }
++
+             param = params[env.network.name]
+             if (!param) {
+                 throw new Error(`No config param found for network ${env.network.name}`);
