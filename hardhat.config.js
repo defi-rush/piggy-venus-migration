@@ -38,7 +38,7 @@ module.exports = {
       chainId: process.env.CHAIN_ID ? +process.env.CHAIN_ID : 31337,
       forking: {
         url: 'https://bsc.getblock.io/mainnet/?api_key=d0aadfa6-57cf-4a78-b149-f4c743ef9a24',
-        // blockNumber: 8631147
+        blockNumber: 8631147
       },
       accounts: [{
         balance: '100000' + '000000000000000000',  // 100000eth
@@ -58,33 +58,21 @@ module.exports = {
     deployer: {
       default: 0,
     },
-    stableSwap3Pool: {
-      'localhost': '0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7',
-      56: '0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7',
+    vBNB: {
+      'localhost': '0xA07c5b74C9B40447a954e1466938b865b6BBea36',
+      56: '0xA07c5b74C9B40447a954e1466938b865b6BBea36',
     },
-    aaveLendingPool: {
-      'localhost': '0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9',
-      56: '0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9',
+    BUSD: {
+      'localhost': '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
+      56: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
     },
-    aaveWETHGateway: {
-      'localhost': '0xcc9a0B7c43DC2a5F023Bb9b738E45B0Ef6B06E04',
-      56: '0xcc9a0B7c43DC2a5F023Bb9b738E45B0Ef6B06E04',
+    vBUSD: {
+      'localhost': '0x95c78222B3D6e262426483D42CfA53685A67Ab9D',
+      56: '0x95c78222B3D6e262426483D42CfA53685A67Ab9D',
     },
-    DAI: {
-      'localhost': '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-      56: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-    },
-    USDC: {
-      'localhost': '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-      56: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-    },
-    USDT: {
-      'localhost': '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-      56: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-    },
-    T3CRV: {
-      'localhost': '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
-      56: '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
-    },
+    venusUnitroller: {
+      'localhost': '0xfD36E2c2a6789Db23113685031d7F16329158384',
+      56: '0xfD36E2c2a6789Db23113685031d7F16329158384',
+    }
   }
 };
