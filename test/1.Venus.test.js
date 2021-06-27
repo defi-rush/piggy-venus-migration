@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const setup = require('./helpers/setup');
 
 describe('Test venus', function() {
-  let userWallet, vBNBContract, vBUSDContract, unitrollerContract;
+  let userWallet, vBNBContract, vBUSDContract, comptrollerContract;
 
   before(async () => {
     userWallet = setup.getUserWallet();
@@ -22,7 +22,7 @@ describe('Test venus', function() {
     const vBUSDAbi = [ ...vTokenAbi ];
     vBUSDContract = new ethers.Contract(accounts['vBUSD'], vBUSDAbi, userWallet);
     /* Unitroller */
-    unitrollerContract = new ethers.Contract(accounts['venusUnitroller'], [
+    comptrollerContract = new ethers.Contract(accounts['venusComptroller'], [
       'function enterMarkets(address[] calldata vTokens) returns (uint[] memory)',
       'event MarketEntered(vToken vToken, address account)',
       'event MarketExited(vToken vToken, address account)'
@@ -45,7 +45,7 @@ describe('Test venus', function() {
 
   it ('should enter market', async function() {
     const { vBNB: vBNBAddress, vBUSD: vBUSDAddress } = await getNamedAccounts();
-    const tx = await unitrollerContract.functions.enterMarkets([vBNBAddress, vBUSDAddress]);
+    const tx = await comptrollerContract.functions.enterMarkets([vBNBAddress, vBUSDAddress]);
     const res = await tx.wait();
   });
 
