@@ -1,7 +1,7 @@
 // require('@nomiclabs/hardhat-waffle');
 require('@nomiclabs/hardhat-ethers');
 require('hardhat-deploy');
-require('hardhat-ethernal');
+// require('hardhat-ethernal');
 
 
 // This is a sample Hardhat task. To learn how to create your own go to
@@ -61,7 +61,7 @@ module.exports = {
     WBNB: {
       'localhost': '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c',
       56: '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c',
-    }
+    },
     BUSD: {
       'localhost': '0xe9e7cea3dedca5984780bafc599bd69add087d56',
       56: '0xe9e7cea3dedca5984780bafc599bd69add087d56',

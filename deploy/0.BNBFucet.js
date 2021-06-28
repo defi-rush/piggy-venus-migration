@@ -1,6 +1,6 @@
 module.exports = async ({
   getNamedAccounts, deployments, getChainId,
-  ethernal
+  // ethernal
 }) => {
   const { deploy } = deployments;
   const chainId = await getChainId();
@@ -14,9 +14,9 @@ module.exports = async ({
       // 部署的时候发送 10000 bnb 过去
       value: ethers.utils.parseEther('10000')
     });
-    ethernal.push({
-      name: 'BNBFucet',
-      address: BNBFucet.address
-    });
+    // ethernal.push({
+    //   name: 'BNBFucet',
+    //   address: BNBFucet.address
+    // });
   }
 }

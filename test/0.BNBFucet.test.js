@@ -3,6 +3,11 @@ const { expect } = require('chai');
 const setup = require('./helpers/setup');
 
 describe('Test ether fucet', function() {
+
+  /**/
+  return;
+  /**/
+
   let bNBFucet, userWallet;
 
   before(async () => {

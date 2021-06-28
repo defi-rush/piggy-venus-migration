@@ -7,6 +7,7 @@ describe('Test venus', function() {
 
   before(async () => {
     userWallet = setup.getUserWallet();
+    // await setup.initializeVenusMarket();
     const accounts = await getNamedAccounts();
     const vTokenAbi = [
       // 'function mint()',
@@ -28,6 +29,12 @@ describe('Test venus', function() {
       'event MarketExited(vToken vToken, address account)'
     ], userWallet);
   });
+
+  // it ('should 1', async function() {
+  //   const balance = await userWallet.getBalance();
+  //   console.log(balance.toString());
+  //   // expect(balance.eq(ethers.utils.parseEther('10'))).to.equal(true);
+  // });
 
   // it ('should mint vToken for BNB', async function() {
   //   const mintTx = await vBNBContract.mint({
