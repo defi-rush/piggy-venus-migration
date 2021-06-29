@@ -85,6 +85,7 @@ module.exports = {
     },
     /* dodo  */
     dodoStablePool: {
+      // PUSD/BUSD pair
       'localhost': '0x863f6adc264d5a3b9dea606a2d316ed31e7416aa',
       56: '0x863f6adc264d5a3b9dea606a2d316ed31e7416aa',
     },
@@ -92,6 +93,12 @@ module.exports = {
     piggyBorrowerOperations: {
       'localhost': '0x8cB2C204F8e35fac27a76c32840f9364b923CD2b',
       56: '0x8cB2C204F8e35fac27a76c32840f9364b923CD2b',
-    }
+    },
+    /* pancakeswap */
+    pancakePair: {
+      // WBNB/BUSD pair
+      'localhost': '0x1b96b92314c44b159149f7e0303511fb2fc4774f',
+      56: '0x1b96b92314c44b159149f7e0303511fb2fc4774f',
+    },
   }
 };
