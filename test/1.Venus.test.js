@@ -2,66 +2,148 @@ const { deployments, ethers, getNamedAccounts } = require('hardhat');
 const { expect } = require('chai');
 const setup = require('./helpers/setup');
 
+const vTokenAbi = [
+  // 'function mint()',
+  'function mint() payable',
+  'function redeem(uint redeemTokens) returns (uint)',
+  'function redeemUnderlying(uint redeemAmount) returns (uint)',
+  'function borrow(uint borrowAmount) returns (uint)',
+  'function repayBorrow(uint repayAmount) returns (uint)',
+  'function repayBorrowBehalf(address borrower, uint repayAmount) returns (uint)',
+  /* 为了让 ethers.Contract.METHOD_NAME 直接返回结果, view 修饰符不能去掉 */
+  'function decimals() view returns (uint)',
+  'function exchangeRateStored() view returns (uint)',
+  'function balanceOf(address account) view returns (uint)',
+  'function borrowBalanceStored(address account) view returns (uint)',
+  /* 下面几项要是 write, 因为计算前会先更新利息 */
+  'function balanceOfUnderlying(address account) returns (uint)',
+  'function accrueInterest() returns (uint)',
+  // 'function borrowBalanceCurrent(address account) returns (uint)',
+  /* 不要用 borrowBalanceCurrent, 获得返回结果不大方便, 他等价于调用 accrueInterest 以后直接读取 borrowBalanceStored */
+];
+
 describe('Test venus', function() {
-  let userWallet, vBNBContract, vBUSDContract, comptrollerContract;
+  let userWallet, vBNBContract, vBUSDContract, comptrollerContract, pancakeRouterContract;
 
   before(async () => {
     userWallet = setup.getUserWallet();
     // await setup.initializeVenusMarket();
     const accounts = await getNamedAccounts();
-    const vTokenAbi = [
-      // 'function mint()',
-      'function borrow(uint borrowAmount) returns (uint)',
-      'function borrowBalanceCurrent(address account) returns (uint)',
-      'function borrowBalanceStored(address account) public view returns (uint)',
-    ];
-    const vBNBAbi = [
-      ...vTokenAbi,
-      'function mint() payable'
-    ];
-    vBNBContract = new ethers.Contract(accounts['vBNB'], vBNBAbi, userWallet);
-    const vBUSDAbi = [ ...vTokenAbi ];
-    vBUSDContract = new ethers.Contract(accounts['vBUSD'], vBUSDAbi, userWallet);
+    vBNBContract = new ethers.Contract(accounts['vBNB'], vTokenAbi, userWallet);
+    vBUSDContract = new ethers.Contract(accounts['vBUSD'], vTokenAbi, userWallet);
     /* Unitroller */
     comptrollerContract = new ethers.Contract(accounts['VenusComptroller'], [
       'function enterMarkets(address[] calldata vTokens) returns (uint[] memory)',
+      'function getAssetsIn(address account) view returns (address[] memory)',
+      'function getAccountLiquidity(address account) view returns (uint, uint, uint)',
       'event MarketEntered(vToken vToken, address account)',
       'event MarketExited(vToken vToken, address account)'
     ], userWallet);
+    pancakeRouterContract = new ethers.Contract(accounts['PancakeRouter'], [
+      'function swapETHForExactTokens(uint amountOut, address[] calldata path, address to, uint deadline) payable returns (uint[] memory amounts)',
+      'function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline) payable returns (uint[] memory amounts)',
+      'function getAmountsIn(uint amountOut, address[] memory path) view returns (uint[] memory amounts)',
+    ], userWallet);
   });
-
-  // it ('should 1', async function() {
-  //   const balance = await userWallet.getBalance();
-  //   console.log(balance.toString());
-  //   // expect(balance.eq(ethers.utils.parseEther('10'))).to.equal(true);
-  // });
-
-  // it ('should mint vToken for BNB', async function() {
-  //   const mintTx = await vBNBContract.mint({
-  //     value: ethers.utils.parseEther('5')
-  //   });
-  //   await mintTx.wait();
-  // });
 
   it ('should mint vToken for BNB', async function() {
     /*
      * contract.functions.METHOD_NAME will always returns a RESULT
      * contract.METHOD_NAME will return a value depending on ABI
      */
-    const mintRes = await vBNBContract.functions.mint({
-      value: ethers.utils.parseEther('5')
+    const balanceVBefore = await vBNBContract.balanceOf(userWallet.address);
+    const amount = ethers.utils.parseEther('5');
+    // const txMint = await vBNBContract.functions.mint({
+    const txMint = await vBNBContract.mint({
+      value: amount
     });
+    await txMint.wait();
+    const [balanceVAfter, exchangeRate, decimals] = await Promise.all([
+      await vBNBContract.balanceOf(userWallet.address),
+      await vBNBContract.exchangeRateStored(),
+      await vBNBContract.decimals(),
+    ]);
+    // 立即会产生利息, 所以 balanceOfUnderlying 计算出来的 balance 前后差异会大于 amount
+    const amountVBNB = balanceVAfter.sub(balanceVBefore);
+    const one18 = ethers.utils.parseEther('1');
+    // BNB / vBNB == exchangeRate / 1e18, vBNB 的 decimals 是 8, 但 exchangeRate 在换算的时候, vBNB 和 BNB 都以 1e18 为底
+    expect(amount.div(amountVBNB).eq(exchangeRate.div(one18))).to.be.true;
   });
 
   it ('should enter market', async function() {
+    let assets = await comptrollerContract.getAssetsIn(userWallet.address);
+    let [error, liquidity, shortfall] = await comptrollerContract.getAccountLiquidity(userWallet.address);
     const { vBNB: vBNBAddress, vBUSD: vBUSDAddress } = await getNamedAccounts();
-    const tx = await comptrollerContract.functions.enterMarkets([vBNBAddress, vBUSDAddress]);
-    const res = await tx.wait();
+    const txMarket = await comptrollerContract.enterMarkets([vBNBAddress, vBUSDAddress]);
+    await txMarket.wait();
+    assets = await comptrollerContract.getAssetsIn(userWallet.address);
+    [error, liquidity, shortfall] = await comptrollerContract.getAccountLiquidity(userWallet.address);
+    expect(assets).to.have.lengthOf(2);
+    expect(liquidity.lt(0)).to.be.false;
+    expect(shortfall.eq(0)).to.be.true;
   });
 
-  it ('should borrow me some BUSD', async function() {
-    const tx = await vBUSDContract.functions.borrow(ethers.utils.parseEther('100'));
-    const res = await tx.wait();
+  it ('should borrow some BUSD', async function() {
+    const borrowBalanceBefore = await vBUSDContract.borrowBalanceStored(userWallet.address);
+    const amount = ethers.utils.parseEther('100');
+    const txBorrow = await vBUSDContract.borrow(amount);
+    await txBorrow.wait();
+    const txInterest = await vBUSDContract.accrueInterest();
+    await txInterest.wait();
+    const borrowBalance = await vBUSDContract.borrowBalanceStored(userWallet.address);
+    expect(borrowBalance.sub(borrowBalanceBefore).gt(amount)).to.be.true;
+    // 因为有利息, borrow 以后实际的债务要大于 amount
+  });
+
+  it ('should repay BUSD with interests', async function() {
+    const txInterest = await vBUSDContract.accrueInterest();
+    await txInterest.wait();
+    const borrowBalance = await vBUSDContract.borrowBalanceStored(userWallet.address);
+    const { vBUSD: addressVBUSD, WBNB: addressWBNB, BUSD: addressBUSD } = await getNamedAccounts();
+    const bUSDContract = new ethers.Contract(addressBUSD, [
+      'function approve(address spender, uint256 amount) returns (bool)',
+      'function balanceOf(address owner) view returns (uint256)',
+    ], userWallet);
+
+    const balance = await bUSDContract.balanceOf(userWallet.address);
+    // 因为每个区块都会产生利息, 到最后调用 repayBorrow 的时候 borrowBalance 又增加了, 这里多换一点出来
+    const amountToRepay = borrowBalance.add(ethers.utils.parseEther('1'));
+    if (amountToRepay.gt(balance)) {
+      const amountOut = amountToRepay.sub(balance);
+      const path = [addressWBNB, addressBUSD];
+      const to = userWallet.address;
+      const deadline = parseInt((new Date()).valueOf() / 1000) + 300;
+      // 给定要兑换出来的 BUSD 数量 amountOut, 计算需要多少 BNB
+      const amountsIn = await pancakeRouterContract.getAmountsIn(amountOut, path);
+      const amountBNB = amountsIn[0].add(ethers.utils.parseEther('1'));
+      const txSwap = await pancakeRouterContract.swapETHForExactTokens(amountOut, path, to, deadline, {
+        value: amountBNB
+        // 多给一点, 没用完的 BNB 会返回
+      });
+      await txSwap.wait();
+    }
+    const balanceNew = await bUSDContract.balanceOf(userWallet.address);
+    expect(balanceNew.gte(amountToRepay), 'enough balance to repay').to.be.true;
+
+    const txApprove = await bUSDContract.approve(addressVBUSD, amountToRepay);
+    await txApprove.wait();
+    // const txRepay = await vBUSDContract.repayBorrow(amountToRepay);
+    // amountToRepay 好像不能超过实际的债务，用 -1 (2^256 - 1) 表示还清所有债务
+    const amount = ethers.BigNumber.from(2).pow(256).sub(1);
+    const txRepay = await vBUSDContract.repayBorrow(amount);
+    await txRepay.wait();
+    const borrowBalanceNew = await vBUSDContract.borrowBalanceStored(userWallet.address);
+    expect(borrowBalanceNew.eq(0), 'no debt').to.be.true;
+  });
+
+  it ('should redeem BNB with interests', async function() {
+    const txInterest = await vBUSDContract.accrueInterest();
+    await txInterest.wait();
+    const balanceVBNB = await vBNBContract.balanceOf(userWallet.address);
+    const txRedeem = await vBNBContract.redeem(balanceVBNB);
+    await txRedeem.wait();
+    const balanceVBNBNew = await vBNBContract.balanceOf(userWallet.address);
+    expect(balanceVBNBNew.eq(0), 'no collateral').to.be.true;
   });
 
 });

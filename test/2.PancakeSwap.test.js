@@ -17,8 +17,9 @@ describe('Test pancake swap', function() {
     ], userWallet);
     // https://github.com/pancakeswap/pancake-swap-periphery/blob/master/contracts/PancakeRouter.sol
     pancakeRouterContract = new ethers.Contract(addressPancakeRouter, [
-      'function swapExactTokensForTokens(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline) returns (uint[] memory amounts)',
+      'function swapETHForExactTokens(uint amountOut, address[] calldata path, address to, uint deadline)) returns (uint[] memory amounts)',
       'function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline) payable returns (uint[] memory amounts)',
+      'function getAmountsIn(uint amountOut, address[] memory path) view returns (uint[] memory amounts)',
     ], userWallet);
   });
 
