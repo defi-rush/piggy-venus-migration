@@ -35,7 +35,7 @@ module.exports = {
     hardhat: {
       live: false,
       saveDeployments: true, // hardhat 默认是 false
-      chainId: process.env.CHAIN_ID ? +process.env.CHAIN_ID : 31337,
+      chainId: +(process.env.CHAIN_ID || 31337),
       forking: {
         url: 'https://bsc.getblock.io/mainnet/?api_key=d0aadfa6-57cf-4a78-b149-f4c743ef9a24',
         blockNumber: 8631147
@@ -53,6 +53,7 @@ module.exports = {
      有一点比较特殊, 对于 hardhat-deploy 来说, hardhat 的 network name 是 localhost
      包括执行 npx hardhat deploy, 必须用参数 --network localhost 而不是 --network hardhat
      https://hardhat.org/plugins/hardhat-deploy.html#flags-2
+     localhost 是来自于 hardhat node 启动时候的 --as-network 参数，默认值是 localhost
   */
   namedAccounts: {
     deployer: {
