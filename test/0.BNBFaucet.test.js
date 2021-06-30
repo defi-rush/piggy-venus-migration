@@ -1,16 +1,14 @@
-const { deployments, ethers, getNamedAccounts } = require('hardhat');
+const { deployments, ethers, getNamedAccounts, network } = require('hardhat');
 const { expect } = require('chai');
 const setup = require('./helpers/setup');
 
 describe('Test BNB faucet', function() {
-
-  /**/
-  return;
-  /**/
-
   let bNBFaucet, userWallet;
 
   before(async () => {
+    // const res = await network.provider.request({
+    //   method: 'evm_snapshot'
+    // });
     userWallet = setup.getUserWallet();
     const BNBFaucet = await deployments.get('BNBFaucet');
     bNBFaucet = new ethers.Contract(BNBFaucet.address, BNBFaucet.abi, ethers.provider);
@@ -40,15 +38,35 @@ describe('Test BNB faucet', function() {
   //   expect(amount.eq((balanceAfter - balanceBefore).toString())).to.equal(true);
   // });
 
-  it ('should transfer 10 BNB again', async function() {
-    const amount = ethers.utils.parseEther('10');
+  it ('should transfer 100 BNB again', async function() {
+    const amount = ethers.utils.parseEther('100');
     const balanceBefore = await userWallet.getBalance();
     // const res = await bNBFaucet.connect(userWallet)['giveBNB(uint256)'](amount, { gasPrice: 0 });
     const res = await bNBFaucet.connect(userWallet).requestBNB(amount, {
       gasPrice: 0
     });
     const balanceAfter = await userWallet.getBalance();
-    expect(amount.eq((balanceAfter - balanceBefore).toString())).to.equal(true);
+    expect(amount.eq(balanceAfter.sub(balanceBefore))).to.equal(true);
+  });
+
+  it ('should mint 50 WBNB', async function() {
+    const { WBNB: wBNBAddress } = await getNamedAccounts();
+    const wBNBContract = new ethers.Contract(wBNBAddress, [
+      'function deposit() public payable',
+      'function withdraw(uint wad) public',
+      'function balanceOf(address owner) view returns (uint256)',
+    ], userWallet);
+    const amount = ethers.utils.parseEther('50');
+    const balanceBefore = await wBNBContract.balanceOf(userWallet.address);
+    const tx = await wBNBContract.functions.deposit({ value: amount });
+    const res = await tx.wait();
+    const balanceAfter = await wBNBContract.balanceOf(userWallet.address);
+    expect(amount.eq(balanceAfter.sub(balanceBefore))).to.equal(true);
+
+    // const res1 = await network.provider.request({
+    //   method: 'evm_revert',
+    //   params: ['0x1']
+    // });
   });
 
 });

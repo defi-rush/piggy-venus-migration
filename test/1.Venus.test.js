@@ -44,7 +44,10 @@ describe('Test venus', function() {
   // });
 
   it ('should mint vToken for BNB', async function() {
-    /* functions.METHOD_NAME will always returns a RESULT */
+    /*
+     * contract.functions.METHOD_NAME will always returns a RESULT
+     * contract.METHOD_NAME will return a value depending on ABI
+     */
     const mintRes = await vBNBContract.functions.mint({
       value: ethers.utils.parseEther('5')
     });

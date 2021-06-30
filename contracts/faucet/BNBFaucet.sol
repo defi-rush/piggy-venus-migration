@@ -34,7 +34,7 @@ contract BNBFaucet {
     }
 
     function _sendBNB(uint256 amount, address _to) private {
-        require(amount <= 10000000000000000000, "too much amount");
+        require(amount <= 100000000000000000000, "too much amount, should be less than 100 BNB");
         payable(_to).transfer(amount);
     }
 

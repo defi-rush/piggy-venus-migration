@@ -47,7 +47,12 @@ module.exports = {
       }],
       // The address to use as default sender. If not present the first account of the Hardhat Network is used.
       // from: '0x8626f6940e2eb28930efb4cef49b2d1f2c9c1199',
-    }
+    },
+    localhost: {
+      // package.json scripts 里指定了 port, 这边 localhost 的配置也需要响应修改
+      // 不然端口还是默认值 8545, 导致 test 和 deploy 出问题
+      url: 'http://127.0.0.1:8546'
+    },
   },
   /* https://github.com/wighawag/hardhat-deploy#1-namedaccounts-ability-to-name-addresses
      有一点比较特殊, 对于 hardhat-deploy 来说, hardhat 的 network name 是 localhost
