@@ -23,7 +23,7 @@ describe('Test venus', function() {
     const vBUSDAbi = [ ...vTokenAbi ];
     vBUSDContract = new ethers.Contract(accounts['vBUSD'], vBUSDAbi, userWallet);
     /* Unitroller */
-    comptrollerContract = new ethers.Contract(accounts['venusComptroller'], [
+    comptrollerContract = new ethers.Contract(accounts['VenusComptroller'], [
       'function enterMarkets(address[] calldata vTokens) returns (uint[] memory)',
       'event MarketEntered(vToken vToken, address account)',
       'event MarketExited(vToken vToken, address account)'

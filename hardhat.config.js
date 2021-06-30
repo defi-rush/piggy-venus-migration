@@ -77,7 +77,7 @@ module.exports = {
       56: '0xedbdb5c2f68ece62ef35134a22156e665c3b06e3',
     },
     /* venus */
-    venusComptroller: {
+    VenusComptroller: {
       'localhost': '0xfd36e2c2a6789db23113685031d7f16329158384',
       56: '0xfd36e2c2a6789db23113685031d7f16329158384',
     },
@@ -90,21 +90,25 @@ module.exports = {
       56: '0x95c78222b3d6e262426483d42cfa53685a67ab9d',
     },
     /* dodo  */
-    dodoStablePool: {
+    DODOStablePool: {
       // PUSD/BUSD pair
       'localhost': '0x863f6adc264d5a3b9dea606a2d316ed31e7416aa',
       56: '0x863f6adc264d5a3b9dea606a2d316ed31e7416aa',
     },
     /* piggy */
-    piggyBorrowerOperations: {
+    PiggyBorrowerOperations: {
       'localhost': '0x8cB2C204F8e35fac27a76c32840f9364b923CD2b',
       56: '0x8cB2C204F8e35fac27a76c32840f9364b923CD2b',
     },
     /* pancakeswap */
-    pancakePair: {
+    PancakePair: {
       // WBNB/BUSD pair
       'localhost': '0x1b96b92314c44b159149f7e0303511fb2fc4774f',
       56: '0x1b96b92314c44b159149f7e0303511fb2fc4774f',
+    },
+    PancakeRouter: {
+      'localhost': '0x10ed43c718714eb63d5aa57b78b54704e256024e',
+      56: '0x10ed43c718714eb63d5aa57b78b54704e256024e',
     },
   }
 };

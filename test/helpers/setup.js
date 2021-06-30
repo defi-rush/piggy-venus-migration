@@ -47,7 +47,7 @@ const initializeVenusMarket = deployments.createFixture(async ({
 
   /* enter market */
   const { vBNB: vBNBAddress, vBUSD: vBUSDAddress } = await getNamedAccounts();
-  const comptrollerContract = new ethers.Contract(accounts['venusComptroller'], [
+  const comptrollerContract = new ethers.Contract(accounts['VenusComptroller'], [
     'function enterMarkets(address[] calldata vTokens) returns (uint[] memory)',
     'event MarketEntered(vToken vToken, address account)',
     'event MarketExited(vToken vToken, address account)'
