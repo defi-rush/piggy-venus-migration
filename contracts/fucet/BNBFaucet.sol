@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "hardhat/console.sol";
 
 
-contract BNBFucet {
+contract BNBFaucet {
     string greeting;
     address owner;
 
@@ -14,7 +14,7 @@ contract BNBFucet {
     }
 
     constructor(string memory _greeting) payable {
-        console.log("Deploying a BNBFucet with greeting:", _greeting);
+        console.log("Deploying a BNBFaucet with greeting:", _greeting);
         greeting = _greeting;
         owner = msg.sender;
     }

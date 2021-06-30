@@ -5,9 +5,9 @@ module.exports = async ({
   const { deploy } = deployments;
   const chainId = await getChainId();
   if (+chainId != 56) {
-    // 在主链上不能部署 fucet
+    // 在主链上不能部署 faucet
     const { deployer } = await getNamedAccounts();
-    const BNBFucet = await deploy('BNBFucet', {
+    const BNBFaucet = await deploy('BNBFaucet', {
       from: deployer,
       log: true,
       args: ['greeting from xd'],
@@ -15,8 +15,8 @@ module.exports = async ({
       value: ethers.utils.parseEther('10000')
     });
     // ethernal.push({
-    //   name: 'BNBFucet',
-    //   address: BNBFucet.address
+    //   name: 'BNBFaucet',
+    //   address: BNBFaucet.address
     // });
   }
 }
