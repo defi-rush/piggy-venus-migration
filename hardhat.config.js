@@ -21,7 +21,7 @@ module.exports = {
       chainId: +(process.env.CHAIN_ID || 31337),
       forking: {
         url: 'https://bsc.getblock.io/mainnet/?api_key=d0aadfa6-57cf-4a78-b149-f4c743ef9a24',
-        blockNumber: 8631147
+        blockNumber: 8773400  // 2021-07-01 18:00
       },
       accounts: [{
         balance: '100000' + '000000000000000000',  // 100000eth
@@ -89,6 +89,6 @@ module.exports = {
     },
   },
   mocha: {
-    timeout: 60000
+    // timeout: 60000
   }
 };

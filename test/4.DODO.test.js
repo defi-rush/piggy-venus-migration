@@ -26,9 +26,9 @@ async function initVenusDebt() {
   const amountToDepositBNB = parseEther('5');
   // venus 的质押率现在是 1.25
   const amountToBorrowBUSD = amountToDepositBNB.mul((priceBNB).div(priceBUSD)).div(2);
-  console.log('deposit/borrow amounts in USD',
-    formatEther(amountToDepositBNB.mul(priceBNB)),
-    formatEther(amountToBorrowBUSD.mul(priceBUSD)),
+  console.log('deposit/borrow amounts:',
+    `${formatEther(amountToDepositBNB)} ($${formatEther(amountToDepositBNB.mul(priceBNB))})`,
+    `${formatEther(amountToBorrowBUSD)} ($${formatEther(amountToBorrowBUSD.mul(priceBUSD))})`,
   );
   /* enter market */
   const txMarket = await comptrollerContract.enterMarkets([addressVBNB, addressVBUSD]);
@@ -41,7 +41,8 @@ async function initVenusDebt() {
   await txBorrow.wait();
   /* liquidity */
   const [error, liquidity, shortfall] = await comptrollerContract.getAccountLiquidity(userWallet.address);
-  console.log('liquidity of venus before flashloan', formatEther(liquidity));
+  console.log('liquidity of venus before flashloan:', formatEther(liquidity));
+  return { amountToDepositBNB, amountToBorrowBUSD };
 }
 
 async function clearVenusDebt() {
@@ -70,6 +71,8 @@ async function clearVenusDebt() {
     vBUSDContract.borrowBalanceStored(userWallet.address),
     busdContract.balanceOf(userWallet.address),
   ]);
+  console.log('amount of BUSD to repay:', formatEther(borrowBalance));
+  console.log('amount of vBNB to redeem:', formatUnits(balanceVBNB, 8));
   const amountToRepay = borrowBalance.add(parseEther('1'));  // 多 swap 一点
   if (amountToRepay.gt(balanceBUSD)) {
     const amountOut = amountToRepay.sub(balanceBUSD);
@@ -95,18 +98,19 @@ async function clearVenusDebt() {
   await txRedeem.wait();
   /* liquidity */
   const [error, liquidity, shortfall] = await comptrollerContract.getAccountLiquidity(userWallet.address);
-  console.log('liquidity of venus after flashloan', formatEther(liquidity));
+  console.log('liquidity of venus after flashloan:', formatEther(liquidity));
 }
 
 describe('Test DODO', function() {
-  let userWallet;
+  let userWallet, borrowBalance;
 
   before(async () => {
     userWallet = setup.getUserWallet();
-    await initVenusDebt();
+    const { amountToDepositBNB, amountToBorrowBUSD } = await initVenusDebt();
+    borrowBalance = amountToBorrowBUSD;
   });
 
-  it ('should give some BUSD/PUSD to VaultMigration contract', async function() {
+  it ('should give 1 BUSD or PUSD to VaultMigration contract', async function() {
     const VaultMigration = await deployments.get('VaultMigration');
     const { WBNB: addressWBNB, BUSD: addressBUSD } = await getNamedAccounts();
     const pancakeRouterContract = await getContractInstance('PancakeRouter', userWallet);
@@ -116,29 +120,30 @@ describe('Test DODO', function() {
     const to = userWallet.address;
     const deadline = parseInt((new Date()).valueOf() / 1000) + 300;
     const amountOut = parseEther('1');
+    // const amountOut = borrowBalance.add(parseEther('1'));
     const amountsIn = await pancakeRouterContract.getAmountsIn(amountOut, path);
     const amountBNB = amountsIn[0];  // .add(parseEther('1'));
-    const txSwap = await pancakeRouterContract.swapETHForExactTokens(amountOut, path, to, deadline, {
-      value: amountBNB
-    });
+    const txSwap = await pancakeRouterContract.swapETHForExactTokens(
+      amountOut, path, to, deadline, { value: amountBNB }
+    );
     await txSwap.wait();
     /* transfer */
-    const txTsf = await busdContract.transfer(VaultMigration.address, parseEther('1'));
+    const txTsf = await busdContract.transfer(VaultMigration.address, amountOut);
     await txTsf.wait();
   });
 
   it ('should callback to VaultMigration', async function() {
     const abiCoder = new ethers.utils.AbiCoder();
     const VaultMigration = await deployments.get('VaultMigration');
-    const baseAmount = parseEther('15');  //BUSD
-    const quoteAmount = parseEther('5');  // PUSD
+    const baseAmount = borrowBalance;  // BUSD
+    const quoteAmount = 0;  // PUSD
     const assetTo = VaultMigration.address;
+    // data 现在是随便放了两个值, 用于 debug
     const data = abiCoder.encode(['address', 'uint256'], [VaultMigration.address, baseAmount]);
-    // console.log(data);
     const dspContract = await getContractInstance('DODOStablePool', userWallet);
-    const tx = await dspContract.flashLoan(baseAmount, quoteAmount, assetTo, data);
-    const res = await tx.wait();
-    // console.log(tx, res);
+    /* flash loan start */
+    const txFlashLoan = await dspContract.flashLoan(baseAmount, quoteAmount, assetTo, data);
+    await txFlashLoan.wait();
   });
 
   after(async () => {
