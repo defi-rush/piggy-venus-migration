@@ -1,6 +1,7 @@
 const { deployments, ethers, getNamedAccounts } = require('hardhat');
 const { expect } = require('chai');
 const setup = require('./helpers/setup');
+const { getContractInstance } = require('./helpers/contracts');
 
 describe('Test pancake swap', function() {
   let userWallet, pancakePairContract, pancakeRouterContract;
@@ -16,11 +17,7 @@ describe('Test pancake swap', function() {
       'function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data)'
     ], userWallet);
     // https://github.com/pancakeswap/pancake-swap-periphery/blob/master/contracts/PancakeRouter.sol
-    pancakeRouterContract = new ethers.Contract(addressPancakeRouter, [
-      'function swapETHForExactTokens(uint amountOut, address[] calldata path, address to, uint deadline)) returns (uint[] memory amounts)',
-      'function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline) payable returns (uint[] memory amounts)',
-      'function getAmountsIn(uint amountOut, address[] memory path) view returns (uint[] memory amounts)',
-    ], userWallet);
+    pancakeRouterContract = await getContractInstance('PancakeRouter', userWallet);
   });
 
   it ('should swap BNB to BUSD', async function() {
@@ -38,7 +35,7 @@ describe('Test pancake swap', function() {
       value: amount
     });
     const res = await tx.wait();
-    console.log(res);
+    // console.log(res);
   });
 
 });

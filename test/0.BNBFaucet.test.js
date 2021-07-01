@@ -1,6 +1,7 @@
 const { deployments, ethers, getNamedAccounts, network } = require('hardhat');
 const { expect } = require('chai');
 const setup = require('./helpers/setup');
+const { getContractInstance } = require('./helpers/contracts');
 
 describe('Test BNB faucet', function() {
   let bNBFaucet, userWallet;
@@ -50,12 +51,7 @@ describe('Test BNB faucet', function() {
   });
 
   it ('should mint 50 WBNB', async function() {
-    const { WBNB: wBNBAddress } = await getNamedAccounts();
-    const wBNBContract = new ethers.Contract(wBNBAddress, [
-      'function deposit() public payable',
-      'function withdraw(uint wad) public',
-      'function balanceOf(address owner) view returns (uint256)',
-    ], userWallet);
+    const wBNBContract = await getContractInstance('WBNB', userWallet);
     const amount = ethers.utils.parseEther('50');
     const balanceBefore = await wBNBContract.balanceOf(userWallet.address);
     const tx = await wBNBContract.functions.deposit({ value: amount });
