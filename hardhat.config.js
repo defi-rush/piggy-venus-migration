@@ -83,5 +83,8 @@ module.exports = {
       'localhost': '0x10ed43c718714eb63d5aa57b78b54704e256024e',
       56: '0x10ed43c718714eb63d5aa57b78b54704e256024e',
     },
+  },
+  mocha: {
+    timeout: 60000
   }
 };
