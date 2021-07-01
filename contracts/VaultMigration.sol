@@ -39,8 +39,13 @@ contract VaultMigration is IDODOCallee {
         dataVars = data;
         (address v1, uint256 v2) = abi.decode(data, (address, uint256));
         console.log('decoded', v1, v2);
-        console.log('BUSD', tokenBUSD.balanceOf(address(this)));
-        console.log('PUSD', tokenPUSD.balanceOf(address(this)));
+        uint256 balanceBUSD = tokenBUSD.balanceOf(address(this));
+        uint256 balancePUSD = tokenPUSD.balanceOf(address(this));
+        console.log('BUSD', balanceBUSD);
+        console.log('PUSD', balancePUSD);
+        console.log('stablePool', stablePool);
+        tokenBUSD.transfer(stablePool, balanceBUSD);
+        tokenPUSD.transfer(stablePool, balancePUSD);
     }
 
 }
