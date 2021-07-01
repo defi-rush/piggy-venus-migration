@@ -4,6 +4,7 @@ const CONTRACTS = {};
 const vTokenABI = [
   // 'function mint()',
   'function mint() payable',
+  'function approve(address spender, uint256 amount) returns (bool)',
   'function redeem(uint redeemTokens) returns (uint)',
   'function redeemUnderlying(uint redeemAmount) returns (uint)',
   'function borrow(uint borrowAmount) returns (uint)',

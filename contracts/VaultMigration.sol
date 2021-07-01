@@ -33,6 +33,11 @@ contract VaultMigration is IDODOCallee {
     IVenusToken public immutable vBNB;
     IVenusToken public immutable vBUSD;
 
+    /**
+     * vBNB.redeem 需要接收 BNB, 这里放一个默认的 receive ether function
+     */
+    receive() external payable {}
+    // fallback() external payable {}
 
     constructor(
         address _stablePool,
@@ -81,8 +86,25 @@ contract VaultMigration is IDODOCallee {
         console.log('venus debtOnCollateral', debtOnCollateral);
     }
 
-    function _repayVenusDebt(VenusLocalVars memory vars, address borrower) internal {
-        vBUSD.repayBorrowBehalf(borrower, vars.borrowBalance);
+    /**
+     * @param      vars    Cached venus storage
+     * @param      sender  The owner of venus collateral and debt
+     */
+    function _repayVenusDebt(VenusLocalVars memory vars, address sender) internal {
+        vBUSD.repayBorrowBehalf(sender, vars.borrowBalance);
+    }
+
+    /**
+     * @param      vars    Cached venus storage
+     * @param      sender  The owner of venus collateral and debt
+     */
+    function _redeemVenusCollateral(VenusLocalVars memory vars, address sender) internal {
+        // 调用 flashloan 之前 sender 已经 approve 了
+        console.log('BNB balance before redeem', address(this).balance);
+        vBNB.transferFrom(sender, address(this), vars.vBnbBalance);
+        vBNB.redeem(vars.vBnbBalance);
+        uint256 bnbColl = address(this).balance;
+        console.log('BNB balance after redeem', bnbColl);
     }
 
     function _repayFlashLoan() internal {
@@ -104,16 +126,21 @@ contract VaultMigration is IDODOCallee {
     ) external override {
         console.log('DSPFlashLoanCall params', sender, baseAmount, quoteAmount);
         dataVars = data;
-        // (address v1, uint256 v2) =
-        abi.decode(data, (address, uint256));
+        // (uint256 v1, uint256 v2) =
+        abi.decode(data, (uint256, uint256));
 
         /* precheck */
         VenusLocalVars memory venusLocalVars = _getVenusBalance(sender);
         _debugVenusVars(venusLocalVars);
-        // TODO: 确认 sender 没在 piggy 开仓, 通过 trovemanager.getTroveStatus(sender)
+        /*
+         * TODO:
+         * 1. 确认 sender 没在 piggy 开仓, 通过 trovemanager.getTroveStatus(sender)
+         * 2. 确认 sender 已经 approve 了足够的 vBNB 和 PUSD
+         * /
 
-        /* repay venus */
+        /* clear venus positions */
         _repayVenusDebt(venusLocalVars, sender);
+        _redeemVenusCollateral(venusLocalVars, sender);
 
         /* return assets to DODO */
         _repayFlashLoan();
