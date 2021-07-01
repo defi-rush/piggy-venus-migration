@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 interface IVenusToken {
-
     /* VTokenInterface */
     function transfer(address dst, uint amount) external returns (bool);
     function transferFrom(address src, address dst, uint amount) external returns (bool);
@@ -29,5 +28,4 @@ interface IVenusToken {
     function borrow(uint borrowAmount) external returns (uint);
     function repayBorrow(uint repayAmount) external returns (uint);
     function repayBorrowBehalf(address borrower, uint repayAmount) external returns (uint);
-
 }

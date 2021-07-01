@@ -1,12 +1,12 @@
 require('@nomiclabs/hardhat-ethers');
 require('hardhat-deploy');
-require('hardhat-ethernal');
 
-extendEnvironment((hre) => {
-  hre.ethernalSync = true;
-  hre.ethernalWorkspace = 'piggy-venus-migration';
-  hre.ethernalTrace = true;
-});
+// require('hardhat-ethernal');
+// extendEnvironment((hre) => {
+//   hre.ethernalSync = true;
+//   hre.ethernalWorkspace = 'piggy-venus-migration';
+//   hre.ethernalTrace = true;
+// });
 
 /**
  * @type import('hardhat/config').HardhatUserConfig
@@ -53,6 +53,10 @@ module.exports = {
     VenusComptroller: {
       'localhost': '0xfd36e2c2a6789db23113685031d7f16329158384',
       56: '0xfd36e2c2a6789db23113685031d7f16329158384',
+    },
+    VenusPriceOracle: {
+      'localhost': '0x516c18dc440f107f12619a6d2cc320622807d0ee',
+      56: '0x516c18dc440f107f12619a6d2cc320622807d0ee',
     },
     vBNB: {
       'localhost': '0xa07c5b74c9b40447a954e1466938b865b6bbea36',

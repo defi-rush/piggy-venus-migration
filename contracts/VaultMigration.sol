@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import "./interfaces/IDODOCallee.sol";
 import "./interfaces/IVenusToken.sol";
+import "./interfaces/IVenusPriceOracle.sol";
 
 
 contract VaultMigration is IDODOCallee {
@@ -15,6 +16,8 @@ contract VaultMigration is IDODOCallee {
 
     bytes dataVars;
     address stablePool;
+
+    IVenusPriceOracle vPriceOracle;
 
     IERC20 public immutable tokenBUSD;
     IERC20 public immutable tokenPUSD;
@@ -24,12 +27,14 @@ contract VaultMigration is IDODOCallee {
 
     constructor(
         address _stablePool,
+        IVenusPriceOracle _vPriceOracle,
         IERC20 _tokenBUSD,
         IERC20 _tokenPUSD,
         IVenusToken _vBNB,
         IVenusToken _vBUSD
     ) {
         stablePool = _stablePool;
+        vPriceOracle = _vPriceOracle;
         tokenBUSD = _tokenBUSD;
         tokenPUSD = _tokenPUSD;
         vBNB = _vBNB;
@@ -42,17 +47,29 @@ contract VaultMigration is IDODOCallee {
     function _getVenusBalance(address sender) internal returns (uint256, uint256) {
         vBNB.accrueInterest();
         vBUSD.accrueInterest();
-        uint256 balanceOfUnderlying = vBNB.balanceOfUnderlying(sender);
-        uint256 borrowBalance = vBUSD.borrowBalanceStored(sender);
-        return (balanceOfUnderlying, borrowBalance);
+
+        uint256 balanceBNB = vBNB.balanceOfUnderlying(sender);
+        uint256 balanceBUSD = vBUSD.borrowBalanceStored(sender);
+        console.log('venus deposit/borrow balance', balanceBNB, balanceBUSD);
+
+        uint256 priceBNB = vPriceOracle.getUnderlyingPrice(vBNB);
+        uint256 priceBUSD = vPriceOracle.getUnderlyingPrice(vBUSD);
+        uint256 valueBNB = balanceBNB * priceBNB / 1e36;
+        uint256 valueBUSD = balanceBUSD * priceBUSD / 1e36;
+        console.log('venus deposit/borrow value in USD', valueBNB, valueBUSD);
+
+        uint256 debtOnCollateral = valueBNB * 1e18 / valueBUSD;
+        console.log('venus debtOnCollateral', debtOnCollateral);
+
+        return (balanceBNB, balanceBUSD);
     }
 
     function _repayFlashLoan() internal {
         uint256 balanceBUSD = tokenBUSD.balanceOf(address(this));
         uint256 balancePUSD = tokenPUSD.balanceOf(address(this));
-        console.log('BUSD', balanceBUSD);
-        console.log('PUSD', balancePUSD);
-        console.log('stablePool', stablePool);
+        console.log('BUSD balance', balanceBUSD);
+        console.log('PUSD balance', balancePUSD);
+        // console.log('stablePool', stablePool);
         tokenBUSD.transfer(stablePool, balanceBUSD);
         tokenPUSD.transfer(stablePool, balancePUSD);
     }
@@ -63,12 +80,12 @@ contract VaultMigration is IDODOCallee {
         uint256 quoteAmount,
         bytes calldata data
     ) external override {
-        console.log(1, sender, baseAmount, quoteAmount);
+        console.log('DSPFlashLoanCall params', sender, baseAmount, quoteAmount);
         dataVars = data;
-        (address v1, uint256 v2) = abi.decode(data, (address, uint256));
-        console.log('decoded', v1, v2);
-        (uint256 bnbDeposited, uint256 busdBorrowed) = _getVenusBalance(sender);
-        console.log('venus', bnbDeposited, busdBorrowed);
+        // (address v1, uint256 v2) =
+        abi.decode(data, (address, uint256));
+        // (uint256 bnbDeposited, uint256 busdBorrowed) =
+        _getVenusBalance(sender);
         _repayFlashLoan();
     }
 

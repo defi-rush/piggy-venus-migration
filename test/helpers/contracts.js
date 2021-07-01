@@ -43,7 +43,10 @@ const ABIs = {
     'function getAssetsIn(address account) view returns (address[] memory)',
     'function getAccountLiquidity(address account) view returns (uint, uint, uint)',
     'event MarketEntered(vToken vToken, address account)',
-    'event MarketExited(vToken vToken, address account)'
+    'event MarketExited(vToken vToken, address account)',
+  ],
+  VenusPriceOracle: [
+    'function getUnderlyingPrice(address vToken) view returns (uint)',
   ],
   PancakeRouter: [
     'function swapETHForExactTokens(uint amountOut, address[] calldata path, address to, uint deadline) payable returns (uint[] memory amounts)',
