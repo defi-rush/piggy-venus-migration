@@ -7,6 +7,8 @@ module.exports = async ({
     deployer,
     DODOStablePool,
     VenusPriceOracle,
+    // PiggyTroveManager,
+    PiggyBorrowerOperations,
     BUSD, PUSD, vBNB, vBUSD,
   } = await getNamedAccounts();
   const VaultMigration = await deploy('VaultMigration', {
@@ -14,6 +16,7 @@ module.exports = async ({
     log: true,
     args: [
       DODOStablePool,
+      PiggyBorrowerOperations,
       VenusPriceOracle,
       BUSD, PUSD, vBNB, vBUSD
     ],

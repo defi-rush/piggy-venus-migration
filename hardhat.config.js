@@ -32,7 +32,7 @@ module.exports = {
     },
     localhost: {
       url: 'http://127.0.0.1:8546',
-      timeout: 5 * 60 * 1000
+      timeout: 20 * 60 * 1000
       // proxy 合约从 getblock 请求数据超级慢, 这里 timeout 设的大一点
     },
   },
@@ -104,6 +104,6 @@ module.exports = {
     },
   },
   mocha: {
-    timeout: 10 * 60 * 1000
+    timeout: 20 * 60 * 1000  // 20 minutes
   }
 };

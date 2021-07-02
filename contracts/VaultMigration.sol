@@ -9,13 +9,15 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./interfaces/IDODOCallee.sol";
 import "./interfaces/IVenusToken.sol";
 import "./interfaces/IVenusPriceOracle.sol";
+import "./interfaces/IBorrowerOperations.sol";
 
 
 contract VaultMigration is IDODOCallee {
     using SafeERC20 for IERC20;
 
-    bytes dataVars;
-    address immutable stablePool;
+    address public immutable stablePool;
+
+    IBorrowerOperations public immutable borrowerOperations;
 
     IERC20 public immutable tokenBUSD;
     IERC20 public immutable tokenPUSD;
@@ -26,6 +28,11 @@ contract VaultMigration is IDODOCallee {
         uint256 borrowBalance;
         uint256 priceBNB;
         uint256 priceBUSD;
+    }
+
+    struct PiggyLocalVars {
+        address upperHint;
+        address lowerHint;
     }
 
     IVenusPriceOracle immutable vPriceOracle;
@@ -41,6 +48,7 @@ contract VaultMigration is IDODOCallee {
 
     constructor(
         address _stablePool,
+        IBorrowerOperations _borrowerOperations,
         IVenusPriceOracle _vPriceOracle,
         IERC20 _tokenBUSD,
         IERC20 _tokenPUSD,
@@ -48,6 +56,7 @@ contract VaultMigration is IDODOCallee {
         IVenusToken _vBUSD
     ) {
         stablePool = _stablePool;
+        borrowerOperations = _borrowerOperations;
         vPriceOracle = _vPriceOracle;
         tokenBUSD = _tokenBUSD;
         tokenPUSD = _tokenPUSD;
@@ -61,57 +70,73 @@ contract VaultMigration is IDODOCallee {
      * @param      sender  The owner of venus collateral and debt
      */
     function _getVenusBalance(address sender) internal returns (VenusLocalVars memory) {
-        VenusLocalVars memory vars;
+        VenusLocalVars memory venusVars;
 
         vBNB.accrueInterest();
         vBUSD.accrueInterest();
 
-        vars.vBnbBalance = vBNB.balanceOf(sender);
-        vars.bnbBalance = vBNB.balanceOfUnderlying(sender);
-        vars.borrowBalance = vBUSD.borrowBalanceStored(sender);
+        venusVars.vBnbBalance = vBNB.balanceOf(sender);
+        venusVars.bnbBalance = vBNB.balanceOfUnderlying(sender);
+        venusVars.borrowBalance = vBUSD.borrowBalanceStored(sender);
 
-        vars.priceBNB = vPriceOracle.getUnderlyingPrice(vBNB);
-        vars.priceBUSD = vPriceOracle.getUnderlyingPrice(vBUSD);
+        venusVars.priceBNB = vPriceOracle.getUnderlyingPrice(vBNB);
+        venusVars.priceBUSD = vPriceOracle.getUnderlyingPrice(vBUSD);
 
-        return vars;
+        return venusVars;
     }
 
-    function _debugVenusVars(VenusLocalVars memory vars) view internal {
-        uint256 valueBNB = vars.bnbBalance * vars.priceBNB / 1e36;
-        uint256 valueBUSD = vars.borrowBalance * vars.priceBUSD / 1e36;
+    function _debugVenusVars(VenusLocalVars memory venusVars) view internal {
+        uint256 valueBNB = venusVars.bnbBalance * venusVars.priceBNB / 1e36;
+        uint256 valueBUSD = venusVars.borrowBalance * venusVars.priceBUSD / 1e36;
         uint256 debtOnCollateral = valueBNB * 1e18 / valueBUSD;
-        console.log('venus vBNB balance', vars.vBnbBalance);
-        console.log('venus deposit/borrow balance', vars.bnbBalance, vars.borrowBalance);
+        console.log('venus vBNB balance', venusVars.vBnbBalance);
+        console.log('venus deposit/borrow balance', venusVars.bnbBalance, venusVars.borrowBalance);
         console.log('venus deposit/borrow value in USD', valueBNB, valueBUSD);
         console.log('venus debtOnCollateral', debtOnCollateral);
     }
 
     /**
-     * @param      vars    Cached venus storage
+     * @param      venusVars    Cached venus storage
      * @param      sender  The owner of venus collateral and debt
      */
-    function _repayVenusDebt(VenusLocalVars memory vars, address sender) internal {
-        vBUSD.repayBorrowBehalf(sender, vars.borrowBalance);
+    function _repayVenusDebt(VenusLocalVars memory venusVars, address sender) internal {
+        vBUSD.repayBorrowBehalf(sender, venusVars.borrowBalance);
     }
 
     /**
-     * @param      vars    Cached venus storage
+     * @param      venusVars    Cached venus storage
      * @param      sender  The owner of venus collateral and debt
      */
-    function _redeemVenusCollateral(VenusLocalVars memory vars, address sender) internal {
+    function _redeemVenusCollateral(VenusLocalVars memory venusVars, address sender) internal {
         // 调用 flashloan 之前 sender 已经 approve 了
         console.log('BNB balance before redeem', address(this).balance);
-        vBNB.transferFrom(sender, address(this), vars.vBnbBalance);
-        vBNB.redeem(vars.vBnbBalance);
+        vBNB.transferFrom(sender, address(this), venusVars.vBnbBalance);
+        vBNB.redeem(venusVars.vBnbBalance);
+        // uint256 bnbColl = address(this).balance;
+        // console.log('BNB balance after redeem', bnbColl);
+    }
+
+    /**
+     * @param      sender  The owner of the trove
+     */
+    function _openTrove(VenusLocalVars memory venusVars, PiggyLocalVars memory piggyVars, address sender) internal {
         uint256 bnbColl = address(this).balance;
-        console.log('BNB balance after redeem', bnbColl);
+        console.log('BNB balance before openTrove', bnbColl);
+        // TODO: 要用 querySellQuote 算出 pusdDebt, 目前先直接用 borrowBalance * 1.03
+        uint256 pusdDebt = venusVars.borrowBalance * 101 / 100;
+        uint256 maxFee = uint256(1e18) / 100;  // 0.01 = 1%;
+        console.log('Ask for PUSD', pusdDebt);
+        borrowerOperations.openTroveOnBehalfOf{value: bnbColl}(
+            sender, maxFee, pusdDebt, piggyVars.upperHint, piggyVars.lowerHint);
+        uint256 balancePUSDOfSender = tokenPUSD.balanceOf(sender);
+        // console.log('PUSD of sender', balancePUSDOfSender);
+        // console.log('PUSD allowance', tokenPUSD.allowance(sender, address(this)));
+        tokenPUSD.transferFrom(sender, address(this), balancePUSDOfSender);
     }
 
     function _repayFlashLoan() internal {
         uint256 balanceBUSD = tokenBUSD.balanceOf(address(this));
         uint256 balancePUSD = tokenPUSD.balanceOf(address(this));
-        console.log('BUSD balance', balanceBUSD);
-        console.log('PUSD balance', balancePUSD);
         // console.log('stablePool', stablePool);
         tokenBUSD.transfer(stablePool, balanceBUSD);
         tokenPUSD.transfer(stablePool, balancePUSD);
@@ -125,13 +150,19 @@ contract VaultMigration is IDODOCallee {
         bytes calldata data
     ) external override {
         console.log('DSPFlashLoanCall params', sender, baseAmount, quoteAmount);
-        dataVars = data;
-        // (uint256 v1, uint256 v2) =
-        abi.decode(data, (uint256, uint256));
+        console.log('BUSD/PUSD received',
+            tokenBUSD.balanceOf(address(this)), tokenPUSD.balanceOf(address(this)));
+
+        PiggyLocalVars memory piggyVars;
+        (
+            piggyVars.upperHint,
+            piggyVars.lowerHint
+        ) = abi.decode(data, (address, address));
+        console.log('hints', piggyVars.upperHint, piggyVars.lowerHint);
 
         /* precheck */
-        VenusLocalVars memory venusLocalVars = _getVenusBalance(sender);
-        _debugVenusVars(venusLocalVars);
+        VenusLocalVars memory venusVars = _getVenusBalance(sender);
+        _debugVenusVars(venusVars);
         /*
          * TODO:
          * 1. 确认 sender 没在 piggy 开仓, 通过 trovemanager.getTroveStatus(sender)
@@ -139,10 +170,15 @@ contract VaultMigration is IDODOCallee {
          * /
 
         /* clear venus positions */
-        _repayVenusDebt(venusLocalVars, sender);
-        _redeemVenusCollateral(venusLocalVars, sender);
+        _repayVenusDebt(venusVars, sender);
+        _redeemVenusCollateral(venusVars, sender);
+
+        /* open piggy trove for user */
+        _openTrove(venusVars, piggyVars, sender);
 
         /* return assets to DODO */
+        console.log('BUSD/PUSD returning',
+            tokenBUSD.balanceOf(address(this)), tokenPUSD.balanceOf(address(this)));
         _repayFlashLoan();
     }
 
