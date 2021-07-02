@@ -54,6 +54,22 @@ const ABIs = {
     'function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline) payable returns (uint[] memory amounts)',
     'function getAmountsIn(uint amountOut, address[] memory path) view returns (uint[] memory amounts)',
   ],
+  PiggyBorrowerOperations: [
+    'function troveManager() view returns (address)',
+    'function openTrove(uint _maxFeePercentage, uint _LUSDAmount, address _upperHint, address _lowerHint) payable',
+    'function openTroveOnBehalfOf(address _borrower, uint _maxFeePercentage, uint _LUSDAmount, address _upperHint, address _lowerHint) payable',
+  ],
+  PiggyTroveManager: [
+    'function LUSD_GAS_COMPENSATION() view returns (uint256)',
+    'function getBorrowingFeeWithDecay(uint _LUSDDebt) view returns (uint)',
+  ],
+  PiggyHintHelpers: [
+    'function getApproxHint(uint _CR, uint _numTrials, uint _inputRandomSeed) view returns (address hintAddress, uint diff, uint latestRandomSeed)',
+  ],
+  PiggySortedTroves: [
+    'function findInsertPosition(uint256 _NICR, address _prevId, address _nextId) view returns (address, address)',
+    'function getSize() view returns (uint256)',
+  ],
   vBNB: [ ...vTokenABI ],
   vBUSD: [ ...vTokenABI ],
   WBNB: [ ...ERC20ABI ],

@@ -20,8 +20,9 @@ module.exports = {
       saveDeployments: true,
       chainId: +(process.env.CHAIN_ID || 31337),
       forking: {
-        url: 'https://bsc.getblock.io/mainnet/?api_key=d0aadfa6-57cf-4a78-b149-f4c743ef9a24',
-        blockNumber: 8773400  // 2021-07-01 18:00
+        url: 'https://bsc.getblock.io/mainnet/?api_key=65f1d98d-ac5a-45f8-be38-00ca29126f92',
+        blockNumber: 8773900
+        // url: 'https://bsc-dataseed.binance.org/',
       },
       accounts: [{
         balance: '100000' + '000000000000000000',  // 100000eth
@@ -30,7 +31,9 @@ module.exports = {
       }],
     },
     localhost: {
-      url: 'http://127.0.0.1:8546'
+      url: 'http://127.0.0.1:8546',
+      timeout: 5 * 60 * 1000
+      // proxy 合约从 getblock 请求数据超级慢, 这里 timeout 设的大一点
     },
   },
   namedAccounts: {
@@ -77,6 +80,18 @@ module.exports = {
       'localhost': '0x8cB2C204F8e35fac27a76c32840f9364b923CD2b',
       56: '0x8cB2C204F8e35fac27a76c32840f9364b923CD2b',
     },
+    PiggyTroveManager: {
+      'localhost': '0xb283466d09177c5c6507785d600cafdfa538c65c',
+      56: '0xb283466d09177c5c6507785d600cafdfa538c65c',
+    },
+    PiggyHintHelpers: {
+      'localhost': '0x9d3c5a071582947e3d7602ebc54851a487057888',
+      56: '0x9d3c5a071582947e3d7602ebc54851a487057888',
+    },
+    PiggySortedTroves: {
+      'localhost': '0x26ac9258d037766aeec27b808c77e853bdb2cdd8',
+      56: '0x26ac9258d037766aeec27b808c77e853bdb2cdd8',
+    },
     /* pancakeswap */
     PancakePair: {
       // WBNB/BUSD pair
@@ -89,6 +104,6 @@ module.exports = {
     },
   },
   mocha: {
-    // timeout: 60000
+    timeout: 10 * 60 * 1000
   }
 };
