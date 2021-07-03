@@ -1,7 +1,7 @@
 const { deployments, ethers, getNamedAccounts, network } = require('hardhat');
 const { expect } = require('chai');
 const setup = require('./helpers/setup');
-const { getContractInstance } = require('../apps/ContractFactory');
+const { getContractInstance } = require('../apps/contract-factory');
 
 describe('Test BNB faucet', function() {
   let bNBFaucet, userWallet;
