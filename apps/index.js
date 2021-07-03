@@ -8,7 +8,8 @@
  */
 const { ethers } = require('hardhat');
 
-const { FaucetApp } = require('./Faucet');
+const { FaucetApp } = require('./faucet');
+const { VenusApp } = require('./venus');
 
 /* set user wallet for test */
 const userWallet = new ethers.Wallet(require('../.testaccount').privateKey, ethers.provider);
@@ -18,8 +19,16 @@ async function main() {
   if (!process.env.HARDHAT_NETWORK) {
     throw new Error('HARDHAT_NETWORK env is required');
   }
-  const faucet = new FaucetApp(userWallet);
-  await faucet.requestBNB(10);
+
+  const balanceInEther = +ethers.utils.formatEther(await userWallet.getBalance());
+  if (balanceInEther < 5) {
+    const faucet = new FaucetApp(userWallet);
+    await faucet.requestBNB(20);
+  }
+
+  const venusApp = new VenusApp(userWallet);
+  await venusApp.clearDebtAndCollateral();
+  // await venusApp.initMarketWithExactCR(5, 130);
 }
 
 main()

@@ -8,9 +8,9 @@ const FaucetApp = function(userWallet) {
   this.userWallet = userWallet;
 }
 
-FaucetApp.prototype.requestBNB = async function(etherAmount) {
+FaucetApp.prototype.requestBNB = async function(amountInEther) {
   const faucet = await getContractInstance('BNBFaucet', this.userWallet);
-  const amount = ethers.utils.parseEther(etherAmount.toString());
+  const amount = ethers.utils.parseEther(amountInEther.toString());
   const res = await faucet.requestBNB(amount, {
     gasPrice: 0
   }).then((tx) => tx.wait());
