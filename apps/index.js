@@ -10,9 +10,13 @@ const { ethers } = require('hardhat');
 
 const { FaucetApp } = require('./faucet');
 const { VenusApp } = require('./venus');
+const { PiggyApp } = require('./piggy');
 
 /* set user wallet for test */
-const userWallet = new ethers.Wallet(require('../.testaccount').privateKey, ethers.provider);
+const userWallet = new ethers.Wallet(
+  require('../.testaccount').privateKey,
+  ethers.provider
+);
 
 
 async function main() {
@@ -27,8 +31,14 @@ async function main() {
   }
 
   const venusApp = new VenusApp(userWallet);
-  await venusApp.clearDebtAndCollateral();
+  // await venusApp.clearDebtAndCollateral();
   // await venusApp.initMarketWithExactCR(5, 130);
+
+  const piggyApp = new PiggyApp(userWallet);
+  const [upperHint, lowerHint] = await piggyApp.findHintForTrove(
+    ethers.utils.parseEther('1000'), ethers.utils.parseEther('5')
+  );
+  console.log('success', [upperHint, lowerHint]);
 }
 
 main()
