@@ -1,4 +1,4 @@
-const { ethers, getNamedAccounts } = require('hardhat');
+const { ethers, getNamedAccounts, deployments } = require('hardhat');
 const CONTRACTS = {};
 
 const vTokenABI = [
@@ -78,9 +78,16 @@ const ABIs = {
 };
 
 async function getContractInstance(name, signer) {
-  const accounts = await getNamedAccounts();
-  const address = accounts[name];
-  const abi = ABIs[name];
+  let address, abi;
+  if (name === 'BNBFaucet') {
+    const BNBFucet = await deployments.get('BNBFaucet');
+    address = BNBFucet.address;
+    abi = BNBFucet.abi;
+  } else {
+    const accounts = await getNamedAccounts();
+    address = accounts[name];
+    abi = ABIs[name];
+  }
   return new ethers.Contract(address, abi, signer || ethers.provider);
 }
 

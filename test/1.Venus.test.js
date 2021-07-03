@@ -1,7 +1,7 @@
 const { deployments, ethers, getNamedAccounts } = require('hardhat');
 const { expect } = require('chai');
 const setup = require('./helpers/setup');
-const { getContractInstance } = require('./helpers/contracts');
+const { getContractInstance } = require('../apps/ContractFactory');
 
 const { parseEther, formatEther, formatUnits, parseUnits } = ethers.utils;
 

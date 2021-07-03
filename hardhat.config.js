@@ -35,6 +35,9 @@ module.exports = {
       timeout: 20 * 60 * 1000
       // proxy 合约从 getblock 请求数据超级慢, 这里 timeout 设的大一点
     },
+    // mainnet: {
+    //   url: 'https://bsc-dataseed.binance.org/',
+    // },
   },
   namedAccounts: {
     deployer: {
