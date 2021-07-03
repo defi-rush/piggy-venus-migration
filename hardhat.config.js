@@ -22,7 +22,6 @@ module.exports = {
       forking: {
         url: 'https://bsc.getblock.io/mainnet/?api_key=65f1d98d-ac5a-45f8-be38-00ca29126f92',
         blockNumber: 8773900
-        // url: 'https://bsc-dataseed.binance.org/',
       },
       accounts: [{
         balance: '100000' + '000000000000000000',  // 100000eth
