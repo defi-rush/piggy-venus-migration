@@ -13,11 +13,11 @@ const PiggyApp = function(userWallet) {
  * Finds a hint for trove.
  * 本地执行超级慢, 估计是 hardhat 内存限制的关系, 还不知道明确的原因, 这个方法直接连 mainnet RPC node 计算
  *
- * @param      {<type>}  ETHColl     The ETH amount (in wei) borrower wants to lock for collateral
- * @param      {<type>}  PUSDAmount  PUSD amount (in wei) borrower wants to withdraw
+ * @param      {<type>}  bnbColl     The BNB amount (in wei) borrower wants to lock for collateral
+ * @param      {<type>}  pusdDebt    PUSD amount (in wei) borrower wants to withdraw
  * @return     {Array}   [upperHint, lowerHint]
  */
-PiggyApp.prototype.findHintForTrove = async function(ETHColl, PUSDAmount) {
+PiggyApp.prototype.findHintForTrove = async function(bnbColl, pusdDebt) {
   // return ['0x0000000000000000000000000000000000000000', '0x96D9eBF8c3440b91aD2b51bD5107A495ca0513E5']
   const provider = new ethers.providers.JsonRpcProvider({
     url: 'https://bsc-dataseed.binance.org/',
@@ -29,13 +29,13 @@ PiggyApp.prototype.findHintForTrove = async function(ETHColl, PUSDAmount) {
   ]);
   // Read the liquidation reserve and latest borrowing fee
   const liquidationReserve = await troveManager.LUSD_GAS_COMPENSATION();
-  const expectedFee = await troveManager.getBorrowingFeeWithDecay(PUSDAmount);
+  const expectedFee = await troveManager.getBorrowingFeeWithDecay(pusdDebt);
   console.log('[Piggy] expectedFee', ethers.utils.formatEther(expectedFee));
   // Total debt of the new trove = PUSD amount drawn, plus fee, plus the liquidation reserve
-  const expectedDebt = PUSDAmount.add(expectedFee).add(liquidationReserve);
+  const expectedDebt = pusdDebt.add(expectedFee).add(liquidationReserve);
   // Get the nominal NICR of the new trove
   const _1e20 = ethers.utils.parseEther('100');
-  const NICR = ETHColl.mul(_1e20).div(expectedDebt);
+  const NICR = bnbColl.mul(_1e20).div(expectedDebt);
   // Get an approximate address hint from the deployed HintHelper contract. Use (15 * number of troves) trials
   // to get an approx. hint that is close to the right position.
   const numTroves = await sortedTroves.getSize();

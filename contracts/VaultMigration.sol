@@ -41,6 +41,9 @@ contract VaultMigration is IDODOCallee {
     /* Piggy vars and interfaces */
 
     struct PiggyLocalVars {
+        uint256 bnbColl;
+        uint256 pusdDebt;
+        uint256 maxFee;
         address upperHint;
         address lowerHint;
     }
@@ -91,7 +94,7 @@ contract VaultMigration is IDODOCallee {
 
         require(
             vBNB.allowance(sender, address(this)) >= venusVars.vBnbBalance,
-            "vBNB allowance is not enough."
+            "vBNB allowance is not enough"
         );
 
         return venusVars;
@@ -99,17 +102,14 @@ contract VaultMigration is IDODOCallee {
 
     /**
      * Open piggy trove for "sender"
-     * @param      venusVars  The venus variables
      * @param      piggyVars  The piggy variables
      * @param      sender     The msg.sender who sends the flashloan
      */
-    function _openTrove(VenusLocalVars memory venusVars, PiggyLocalVars memory piggyVars, address sender) internal {
-        uint256 bnbColl = address(this).balance;
-        // TODO: 要用 querySellQuote 算出 pusdDebt, 目前先直接用 borrowBalance * 1.03
-        uint256 pusdDebt = venusVars.borrowBalance * 101 / 100;
-        uint256 maxFee = uint256(1e18) / 100;  // 0.01 = 1%;
-        borrowerOperations.openTroveOnBehalfOf{value: bnbColl}(
-            sender, maxFee, pusdDebt, piggyVars.upperHint, piggyVars.lowerHint);
+    function _openTrove(PiggyLocalVars memory piggyVars, address sender) internal {
+        require(piggyVars.bnbColl <= address(this).balance, "BNB balance is not enough");
+        // require(pusdDebt);  // pusd 需要满足足够偿还 flashloan
+        borrowerOperations.openTroveOnBehalfOf{value: piggyVars.bnbColl}(
+            sender, piggyVars.maxFee, piggyVars.pusdDebt, piggyVars.upperHint, piggyVars.lowerHint);
         uint256 balancePUSDOfSender = tokenPUSD.balanceOf(sender);
         tokenPUSD.transferFrom(sender, address(this), balancePUSDOfSender);
     }
@@ -124,7 +124,6 @@ contract VaultMigration is IDODOCallee {
         tokenBUSD.transfer(stablePool, balanceBUSD);
         tokenPUSD.transfer(stablePool, balancePUSD);
     }
-
 
     /**
      * @param      sender       The msg.sender who sends the flashloan
@@ -141,11 +140,8 @@ contract VaultMigration is IDODOCallee {
         require(tokenBUSD.balanceOf(address(this)) == baseAmount, "something went wrong ...");
         require(tokenPUSD.balanceOf(address(this)) == quoteAmount, "something went wrong ...");
 
-        PiggyLocalVars memory piggyVars;
-        (
-            piggyVars.upperHint,
-            piggyVars.lowerHint
-        ) = abi.decode(data, (address, address));
+        // bnbColl, pusdDebt, maxFee, upperHint, lowerHint
+        PiggyLocalVars memory piggyVars = abi.decode(data, (PiggyLocalVars));
 
         /* 1. precheck */
         VenusLocalVars memory venusVars = _checkVenusBalance(sender);
@@ -171,7 +167,7 @@ contract VaultMigration is IDODOCallee {
          * 3. open piggy trove for user
          * xxx
          */
-        _openTrove(venusVars, piggyVars, sender);
+        _openTrove(piggyVars, sender);
 
         /* 4. return flashloan assets to DODO */
         _repayFlashLoan();

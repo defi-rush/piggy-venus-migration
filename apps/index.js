@@ -61,8 +61,14 @@ App.prototype.precheck = async function() {
 
   const _1e18 = ethers.utils.parseUnits('1', 18);
   const bnbBalance = vBnbBalance.mul(exchangeRate).div(_1e18);
-  // 加上手续费 0.3% ~ 1%
+
+  // busd 加上 flashloan 的手续费 0.3% ~ 1%
+  // TODO, flashloan 的手续费还要确认下, 要用 querySellQuote 算出 pusdDebt
+  // uint256 pusdDebt = venusVars.borrowBalance * 101 / 100;
   const pusdDebt = borrowBalance.mul(101).div(100);
+  // 存入 piggy 的 bnb 稍微少一点, 确保足够,
+  // TODO, 这一步可能不需要, 确认下
+  const bnbColl = bnbBalance.mul(99).div(100);
 
   /* TODO !
    * 检查一下 liquidityToRemove
@@ -80,20 +86,18 @@ App.prototype.precheck = async function() {
   // uint256 liquidityToRemove = valueBNB * collateralFactorMantissa / 1e18 - valueBUSD;
   // // require(liquidityToRemove <= liquidity);
 
-  return { vBnbBalance, bnbBalance, pusdDebt, borrowBalance };
+  return { vBnbBalance, borrowBalance, bnbColl, pusdDebt };
 }
 
 App.prototype.flashloan = async function({
-  vBnbBalance, bnbBalance, pusdDebt, borrowBalance
+  vBnbBalance, borrowBalance, bnbColl, pusdDebt
 }) {
   /* 1. pre-calculate trove params */
-  // const maxFee = '5'.concat('0'.repeat(16)) // Slippage protection: 5%
-  // TODO 不要在合约里算, 前端算好
-  // OpenTrove 获得的 PUSD 大致等于 borrowBalance, 存入的 BNB 也大致等于 bnbBalance
-  const [upperHint, lowerHint] = await this.piggyApp.findHintForTrove(bnbBalance, pusdDebt);
+  const maxFee = ethers.utils.parseEther('1').mul(3).div(100); // Slippage protection: 3%
+  const [upperHint, lowerHint] = await this.piggyApp.findHintForTrove(bnbColl, pusdDebt);
 
   /* 2. approve to vault migration  */
-  await this.vBNB.approve(this.vaultMigration.address, vBnbBalance).then((tx) => tx.wait());
+  await this.vBNB.approve(this.vaultMigration.address, vBnbBalance.mul(2)).then((tx) => tx.wait());
   await this.tokenPUSD.approve(this.vaultMigration.address, pusdDebt.mul(2)).then((tx) => tx.wait());
 
   /* 3. flashloan */
@@ -102,7 +106,10 @@ App.prototype.flashloan = async function({
   const baseAmount = borrowBalance.mul(101).div(100);  // 多借一点 BUSD, 因为执行期间利息又增加了
   const quoteAmount = 0;  // PUSD
   const assetTo = this.vaultMigration.address;
-  const data = abiCoder.encode(['address', 'address'], [upperHint, lowerHint]);
+  const data = abiCoder.encode(
+    ['uint256', 'uint256', 'uint256', 'address', 'address'],
+    [bnbColl, pusdDebt, maxFee, upperHint, lowerHint],
+  );
   await this.dodoStablePool.flashLoan(baseAmount, quoteAmount, assetTo, data).then((tx) => tx.wait());
   console.log('[FlashLoan] end');
 }
