@@ -108,7 +108,7 @@ contract VaultMigration is IDODOCallee {
         vBNB.redeem(vBnbBalance);
 
         /**
-         * 2. open piggy trove for user
+         * 2. open Piggy trove for user
          *  - ? 需要确认下 maxFee 是否和 pusdDebt 的计算无关
          */
         require(address(this).balance >= bnbColl, "BNB balance is not enough");
@@ -136,32 +136,36 @@ contract VaultMigration is IDODOCallee {
         require(troveStatus != 1, "Piggy trove is active");
 
         /**
-         * 检查 venus 余额
+         * 检查 Venus 余额
+         *  - vBNB 有足够的 allowance
+         *  - BNB 和 BUSD 的价值满足 Piggy 的条件 (这只是个大概的估算, 不满足条件的可以提前终止)
          */
         vBNB.accrueInterest();
         vBUSD.accrueInterest();
         uint256 borrowBalance = vBUSD.borrowBalanceStored(msg.sender);
         uint256 bnbBalance = vBNB.balanceOfUnderlying(msg.sender);
         uint256 vBnbBalance = vBNB.balanceOf(msg.sender);
-        // uint256 priceBNB = vPriceOracle.getUnderlyingPrice(vBNB);
+        uint256 priceBNB = vPriceOracle.getUnderlyingPrice(vBNB);
         // uint256 priceBUSD = vPriceOracle.getUnderlyingPrice(vBUSD);
         require(vBNB.allowance(msg.sender, address(this)) >= vBnbBalance, "vBNB allowance is not enough");
+        require(
+            bnbBalance * priceBNB / borrowBalance > 1e18 * 110 / 100,
+            "Collateral ratio must be greater than 110% for Piggy");
 
         /**
-         * 计算 piggy 金额
-         * bnbColl:  从 venus 取出并且全部放进 piggy 的 BNB 数量;
+         * 计算 Piggy 金额
+         * bnbColl:  从 Venus 取出并且全部放进 Piggy 的 BNB 数量;
          *           在同一个区块里, bnbColl 始终等于 vBNB.balanceOfUnderlying
-         * pusdDebt: 从 piggy 借出的 PUSD 数量, 约等于 borrowBalance (BUSD) 加上 0.3% 的 flashloan 手续费
+         * pusdDebt: 从 Piggy 借出的 PUSD 数量, 约等于 borrowBalance (BUSD) 加上 0.3% 的 flashloan 手续费
          */
         uint256 bnbColl = bnbBalance;
         uint256 pusdDebt = borrowBalance * 101 / 100;  // 加上 1%
         (uint256 receiveBaseAmount, , ,) = dodoStablePool.querySellQuote(address(this), pusdDebt);
         assert(borrowBalance <= receiveBaseAmount);
         require(tokenPUSD.allowance(msg.sender, address(this)) >= pusdDebt, "PUSD allowance is not enough");
-        // TODO, 需要确保 bnbBalance * price / borrowBalance > 110%
 
         /**
-         * flashloan
+         * FlashLoan
          *   baseAmount: borrowBalance
          *   quoteAmount: 0
          */

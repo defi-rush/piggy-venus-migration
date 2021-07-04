@@ -43,6 +43,10 @@ App.prototype.mockUserAccount = async function() {
     { 'vBNB': 1200 },  // collaterals
     { 'vBUSD': 900 },  // debts
 
+    /* Piggy 最低质押率不满足 */
+    // { 'vBNB': 1500, 'vETH': 500 },  // collaterals
+    // { 'vBUSD': 1400, 'vUSDC': 100 },  // debts
+
     /* 剩余抵押率不足 */
     // { 'vBNB': 1200, 'vETH': 60 },  // collaterals
     // { 'vBUSD': 900, 'vUSDC': 100 },  // debts
@@ -140,8 +144,8 @@ async function shotshotAndRun() {
     console.log(err);
   }
 
-  // await network.provider.send('evm_revert', [snapshotId]);
-  // console.log('reverted to snapshot:', snapshotId);
+  await network.provider.send('evm_revert', [snapshotId]);
+  console.log('reverted to snapshot:', snapshotId);
 }
 
 shotshotAndRun()
