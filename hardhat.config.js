@@ -8,6 +8,13 @@ require('hardhat-deploy');
 //   hre.ethernalTrace = true;
 // });
 
+task('revert', 'send evm_revert request')
+  .addParam('snapshot', 'The snapshot id')
+  .setAction(async taskArgs => {
+    await network.provider.send('evm_revert', [taskArgs.snapshot]);
+    console.log('evm_revert success');
+  });
+
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */

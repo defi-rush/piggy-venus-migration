@@ -50,6 +50,10 @@ VenusApp.prototype.initMarketWithExactCR = async function(bnbAmountInEther, targ
   // venus 最低质押率 1.25, liquidity 应该约等于 depositValueInUSD / 1.25 - borrowValueInUSD
 }
 
+
+/**
+ * 归还 BUSD 并取出 BNB, 这个方法没有用到
+ */
 VenusApp.prototype.clearDebtAndCollateral = async function() {
   const [tokenBUSD, vBNB, vBUSD, comptroller] = await Promise.all([
     getContractInstance('BUSD', this.userWallet),

@@ -6,44 +6,67 @@
  * HARDHAT_NETWORK environment variable is necessary to run these scripts:
  *   `HARDHAT_NETWORK=localhost node apps/index.js`
  */
-const { ethers } = require('hardhat');
+const { ethers, network } = require('hardhat');
 
 const { FaucetApp } = require('./faucet');
 const { VenusApp } = require('./venus');
 const { PiggyApp } = require('./piggy');
 
-/* set user wallet for test */
-const userWallet = new ethers.Wallet(
-  require('../.testaccount').privateKey,
-  ethers.provider
-);
+function App() {
+  /* set user wallet for test */
+  this.userWallet = new ethers.Wallet(
+    require('../.testaccount').privateKey,
+    ethers.provider
+  );
+}
+
+App.prototype.initialize = async function() {
+  const faucet = new FaucetApp(this.userWallet);
+  await faucet.requestBNB(20);
+  const venusApp = new VenusApp(this.userWallet);
+  await venusApp.initMarketWithExactCR(5, 130);
+}
+
+App.prototype.precheck = async function() {
+  //
+}
+
+App.prototype.flashloan = async function() {
+  const piggyApp = new PiggyApp(this.userWallet);
+  const [upperHint, lowerHint] = await piggyApp.findHintForTrove(
+    ethers.utils.parseEther('1000'), ethers.utils.parseEther('5')
+  );
+
+  /* 开始 flashloan */
+  const maxFee = '5'.concat('0'.repeat(16)) // Slippage protection: 5%
+}
 
 
-async function main() {
+/**
+ * main process
+ * run `npx hardhat revert [snapshotId] --network localhost` to send a `evm_revert` request
+ */
+async function shotshotAndRun() {
   if (!process.env.HARDHAT_NETWORK) {
     throw new Error('HARDHAT_NETWORK env is required');
   }
 
-  const balanceInEther = +ethers.utils.formatEther(await userWallet.getBalance());
-  if (balanceInEther < 5) {
-    const faucet = new FaucetApp(userWallet);
-    await faucet.requestBNB(20);
+  const app = new App();
+  const snapshotId = await network.provider.send('evm_snapshot');
+  console.log('start on snapshot:', snapshotId);
+
+  try {
+    await app.initialize();
+    await app.precheck();
+    await app.flashloan();
+  } catch(err) {
+    console.log(err);
   }
 
-  const venusApp = new VenusApp(userWallet);
-  // await venusApp.clearDebtAndCollateral();
-  // await venusApp.initMarketWithExactCR(5, 130);
-
-  const piggyApp = new PiggyApp(userWallet);
-  const [upperHint, lowerHint] = await piggyApp.findHintForTrove(
-    ethers.utils.parseEther('1000'), ethers.utils.parseEther('5')
-  );
-  console.log('success', [upperHint, lowerHint]);
-  // // Finally, call openTrove with the exact upperHint and lowerHint
-  // const maxFee = '5'.concat('0'.repeat(16)) // Slippage protection: 5%
+  // await network.provider.send('evm_revert', [snapshotId]);
 }
 
-main()
+shotshotAndRun()
   .then(() => process.exit(0))
   .catch(error => {
     console.error(error);
