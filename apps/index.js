@@ -6,44 +6,83 @@
  * HARDHAT_NETWORK environment variable is necessary to run these scripts:
  *   `HARDHAT_NETWORK=localhost node apps/index.js`
  */
-const { ethers, network } = require('hardhat');
+const { ethers, deployments, network } = require('hardhat');
+const { getContractInstance } = require('./contract-factory');
 
 const { FaucetApp } = require('./faucet');
 const { VenusApp } = require('./venus');
 const { PiggyApp } = require('./piggy');
 
-function App() {
-  /* set user wallet for test */
-  this.userWallet = new ethers.Wallet(
-    require('../.testaccount').privateKey,
-    ethers.provider
-  );
+function App() {}
+
+App.prototype.initialize = async function(privateKey) {
+  this.userWallet = new ethers.Wallet(privateKey, ethers.provider);
+  this.piggyApp = new PiggyApp(this.userWallet);
+  this.vaultMigration = await deployments.get('VaultMigration');
+  [
+    this.vBNB,
+    this.vBUSD,
+    this.tokenPUSD,
+    this.dodoStablePool,
+  ] = await Promise.all([
+    getContractInstance('vBNB', this.userWallet),
+    getContractInstance('vBUSD', this.userWallet),
+    getContractInstance('PUSD', this.userWallet),
+    getContractInstance('DODOStablePool', this.userWallet),
+  ]);
 }
 
-App.prototype.initialize = async function() {
+App.prototype.mockUserAccount = async function() {
   const faucet = new FaucetApp(this.userWallet);
   await faucet.requestBNB(20);
   const venusApp = new VenusApp(this.userWallet);
   // await venusApp.initMarketWithExactCR(5, 130);
   await venusApp.initMarketWithMultipleAssets({
-    'vBNB': 1000, 'vETH': 300
+    'vBNB': 1200, 'vETH': 100
   }, {
     'vBUSD': 900, 'vUSDC': 100
   });
 }
 
 App.prototype.precheck = async function() {
-  //
+  const [exchangeRate, vBnbBalance, borrowBalance] = await Promise.all([
+    this.vBNB.exchangeRateStored(),
+    this.vBNB.balanceOf(this.userWallet.address),
+    this.vBUSD.borrowBalanceStored(this.userWallet.address),
+  ]);
+
+  const _1e18 = ethers.utils.parseUnits('1', 18);
+  const bnbBalance = vBnbBalance.mul(exchangeRate).div(_1e18);
+  // 加上手续费 0.3% ~ 1%
+  const pusdDebt = borrowBalance.mul(101).div(100);
+
+  return { vBnbBalance, bnbBalance, pusdDebt, borrowBalance };
 }
 
-App.prototype.flashloan = async function() {
-  const piggyApp = new PiggyApp(this.userWallet);
-  const [upperHint, lowerHint] = await piggyApp.findHintForTrove(
-    ethers.utils.parseEther('1000'), ethers.utils.parseEther('5')
-  );
+App.prototype.flashloan = async function({
+  vBnbBalance, bnbBalance, pusdDebt, borrowBalance
+}) {
+  console.log('bnb', ethers.utils.formatEther(bnbBalance), 'pusd', ethers.utils.formatEther(pusdDebt));
 
-  /* 开始 flashloan */
-  const maxFee = '5'.concat('0'.repeat(16)) // Slippage protection: 5%
+  /* 1. pre-calculate trove params */
+  // const maxFee = '5'.concat('0'.repeat(16)) // Slippage protection: 5%
+  // TODO 不要在合约里算, 前端算好
+  // OpenTrove 获得的 PUSD 大致等于 borrowBalance, 存入的 BNB 也大致等于 bnbBalance
+  const [upperHint, lowerHint] = await this.piggyApp.findHintForTrove(bnbBalance, pusdDebt);
+
+  /* 2. approve to vault migration  */
+  await this.vBNB.approve(this.vaultMigration.address, vBnbBalance).then((tx) => tx.wait());
+  await this.tokenPUSD.approve(this.vaultMigration.address, pusdDebt.mul(2)).then((tx) => tx.wait());
+
+  /* 3. flashloan */
+  console.log('FlashLoan starting');
+  const abiCoder = new ethers.utils.AbiCoder();
+  const baseAmount = borrowBalance.mul(101).div(100);  // 多借一点 BUSD, 因为执行期间利息又增加了
+  const quoteAmount = 0;  // PUSD
+  const assetTo = this.vaultMigration.address;
+  const data = abiCoder.encode(['address', 'address'], [upperHint, lowerHint]);
+  await this.dodoStablePool.flashLoan(baseAmount, quoteAmount, assetTo, data).then((tx) => tx.wait());
+  console.log('FlashLoan end');
 }
 
 
@@ -57,13 +96,16 @@ async function shotshotAndRun() {
   }
 
   const app = new App();
+  await app.initialize(require('../.testaccount').privateKey);  /* user wallet for test */
+
   const snapshotId = await network.provider.send('evm_snapshot');
   console.log('start on snapshot:', snapshotId);
 
   try {
-    await app.initialize();
-    // await app.precheck();
-    // await app.flashloan();
+    await app.mockUserAccount();
+    /* 实际的流程从 precheck 开始 */
+    const precheckResult = await app.precheck();
+    await app.flashloan(precheckResult);
   } catch(err) {
     console.log(err);
   }

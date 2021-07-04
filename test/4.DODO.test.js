@@ -102,7 +102,7 @@ async function clearVenusDebt() {
 }
 
 
-async function _findHintForPiggyTrove(PUSDAmount, ETHColl) {
+async function _findHintForPiggyTrove(ETHColl, PUSDAmount) {
   const userWallet = setup.getUserWallet();
   /**/
   return [
