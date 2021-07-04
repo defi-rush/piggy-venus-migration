@@ -7,6 +7,7 @@ module.exports = async ({
     deployer,
     DODOStablePool,
     VenusPriceOracle,
+    VenusComptroller,
     // PiggyTroveManager,
     PiggyBorrowerOperations,
     BUSD, PUSD, vBNB, vBUSD,
@@ -16,8 +17,9 @@ module.exports = async ({
     log: true,
     args: [
       DODOStablePool,
-      PiggyBorrowerOperations,
       VenusPriceOracle,
+      VenusComptroller,
+      PiggyBorrowerOperations,
       BUSD, PUSD, vBNB, vBUSD
     ],
   });

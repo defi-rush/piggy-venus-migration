@@ -30,7 +30,7 @@ PiggyApp.prototype.findHintForTrove = async function(ETHColl, PUSDAmount) {
   // Read the liquidation reserve and latest borrowing fee
   const liquidationReserve = await troveManager.LUSD_GAS_COMPENSATION();
   const expectedFee = await troveManager.getBorrowingFeeWithDecay(PUSDAmount);
-  console.log('findHintForTrove expectedFee', ethers.utils.formatEther(expectedFee));
+  console.log('[Piggy] expectedFee', ethers.utils.formatEther(expectedFee));
   // Total debt of the new trove = PUSD amount drawn, plus fee, plus the liquidation reserve
   const expectedDebt = PUSDAmount.add(expectedFee).add(liquidationReserve);
   // Get the nominal NICR of the new trove
@@ -39,14 +39,14 @@ PiggyApp.prototype.findHintForTrove = async function(ETHColl, PUSDAmount) {
   // Get an approximate address hint from the deployed HintHelper contract. Use (15 * number of troves) trials
   // to get an approx. hint that is close to the right position.
   const numTroves = await sortedTroves.getSize();
-  console.log('findHintForTrove numTroves', numTroves.toString());
+  console.log('[Piggy] numTroves', numTroves.toString());
   // const numTrials = numTroves.mul(15);
   const numTrials = numTroves.mul(10);
   const { 0: approxHint } = await hintHelpers.getApproxHint(NICR, numTrials, 42);  // random seed of 42
-  console.log('findHintForTrove approxHint', approxHint);
+  console.log('[Piggy] approxHint', approxHint);
   // Use the approximate hint to get the exact upper and lower hints from the deployed SortedTroves contract
   const { 0: upperHint, 1: lowerHint } = await sortedTroves.findInsertPosition(NICR, approxHint, approxHint);
-  console.log('findHintForTrove upperHint/lowerHint', upperHint, lowerHint);
+  console.log('[Piggy] upperHint/lowerHint', upperHint, lowerHint);
   return [upperHint, lowerHint];
 }
 

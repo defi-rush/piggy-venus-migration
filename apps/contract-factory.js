@@ -44,6 +44,7 @@ const ABIs = {
     'function enterMarkets(address[] calldata vTokens) returns (uint[] memory)',
     'function getAssetsIn(address account) view returns (address[] memory)',
     'function getAccountLiquidity(address account) view returns (uint, uint, uint)',
+    'function markets(address vTokenAddress) view returns (bool, uint, bool)',
     'event MarketEntered(vToken vToken, address account)',
     'event MarketExited(vToken vToken, address account)',
   ],

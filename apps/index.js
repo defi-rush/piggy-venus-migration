@@ -37,11 +37,12 @@ App.prototype.mockUserAccount = async function() {
   await faucet.requestBNB(20);
   const venusApp = new VenusApp(this.userWallet);
   // await venusApp.initMarketWithExactCR(5, 130);
-  await venusApp.initMarketWithMultipleAssets({
-    'vBNB': 1200, 'vETH': 100
-  }, {
-    'vBUSD': 900, 'vUSDC': 100
-  });
+  await venusApp.initMarketWithMultipleAssets(
+    { 'vBNB': 1200, 'vETH': 60 },  // collaterals
+    { 'vBUSD': 900, 'vUSDC': 100 },  // debts
+    // { 'vBNB': 1000, 'vETH': 300 },  // collaterals
+    // { 'vBUSD': 800, 'vUSDC': 200 },  // debts
+  );
 }
 
 App.prototype.precheck = async function() {
@@ -56,14 +57,26 @@ App.prototype.precheck = async function() {
   // 加上手续费 0.3% ~ 1%
   const pusdDebt = borrowBalance.mul(101).div(100);
 
+  /*
+   * TODO: check liquidityToRemove
+   */
+  // (bool isListed, uint collateralFactorMantissa, bool isXvsed) = venusComptroller.markets(address(vBNB));
+
+  // const r_vBNB = await comptroller.markets(accounts['vBNB']);
+  // const r_vETH = await comptroller.markets(accounts['vETH']);
+  // const r_vBUSD = await comptroller.markets(accounts['vBUSD']);
+  // const r_vUSDC = await comptroller.markets(accounts['vUSDC']);
+  // console.log('vBNB', formatEther(r_vBNB[1]));
+  // console.log('vETH', formatEther(r_vETH[1]));
+  // console.log('vBUSD', formatEther(r_vBUSD[1]));
+  // console.log('vUSDC', formatEther(r_vUSDC[1]));
+
   return { vBnbBalance, bnbBalance, pusdDebt, borrowBalance };
 }
 
 App.prototype.flashloan = async function({
   vBnbBalance, bnbBalance, pusdDebt, borrowBalance
 }) {
-  console.log('bnb', ethers.utils.formatEther(bnbBalance), 'pusd', ethers.utils.formatEther(pusdDebt));
-
   /* 1. pre-calculate trove params */
   // const maxFee = '5'.concat('0'.repeat(16)) // Slippage protection: 5%
   // TODO 不要在合约里算, 前端算好
@@ -75,14 +88,14 @@ App.prototype.flashloan = async function({
   await this.tokenPUSD.approve(this.vaultMigration.address, pusdDebt.mul(2)).then((tx) => tx.wait());
 
   /* 3. flashloan */
-  console.log('FlashLoan starting');
+  console.log('[FlashLoan] starting');
   const abiCoder = new ethers.utils.AbiCoder();
   const baseAmount = borrowBalance.mul(101).div(100);  // 多借一点 BUSD, 因为执行期间利息又增加了
   const quoteAmount = 0;  // PUSD
   const assetTo = this.vaultMigration.address;
   const data = abiCoder.encode(['address', 'address'], [upperHint, lowerHint]);
   await this.dodoStablePool.flashLoan(baseAmount, quoteAmount, assetTo, data).then((tx) => tx.wait());
-  console.log('FlashLoan end');
+  console.log('[FlashLoan] end');
 }
 
 

@@ -60,6 +60,11 @@ VenusApp.prototype.initMarketWithMultipleAssets = async function(collaterals, de
     const _1e18 = parseUnits('1', 18);
     const amountInWei = parseEther(valueInUSD.toString()).mul(_1e18).div(underlyingTokenPrice);
     await vToken.borrow(amountInWei).then((tx) => tx.wait());
+    // 如果可借额度不够, 这里居然不会报错, 所以下面需要检查并确认一下借出金额
+    const vTokenBorrowBalance = await vToken.borrowBalanceStored(this.userWallet.address);
+    if (!vTokenBorrowBalance.eq(amountInWei)) {
+      throw new Error(`[Venus] failed borrow ${formatEther(amountInWei)}($${valueInUSD}) from ${vTokenName}`);
+    }
     console.log(`[Venus] borrow ${formatEther(amountInWei)}($${valueInUSD}) from ${vTokenName}`);
   }
   /* liquidity */
@@ -104,6 +109,8 @@ VenusApp.prototype.initMarketWithExactCR = async function(bnbAmountInEther, targ
     `liquidity: ${formatEther(liquidity)}`,
   );
   // venus 最低质押率 1.25, liquidity 应该约等于 depositValueInUSD / 1.25 - borrowValueInUSD
+  // 计算方法是 [isListed, collateralFactorMantissa, isXvsed] = await comptroller.markets(vToken)
+  // 然后 (1e18 / collateralFactorMantissa) 就是质押率
 }
 
 
