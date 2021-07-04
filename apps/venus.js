@@ -1,5 +1,5 @@
 const { ethers, getNamedAccounts } = require('hardhat');
-const { getContractInstance } = require('./contract-factory');
+const { getContractInstance, ERC20ABI } = require('./contract-factory');
 const { PancakeSwapApp } = require('./pancake');
 
 const { parseEther, formatEther, formatUnits, parseUnits } = ethers.utils;
@@ -11,6 +11,62 @@ const VenusApp = function(userWallet) {
   }
   this.userWallet = userWallet;
 }
+
+/**
+ * 存入多个资产并借出多个资产, 均以 USD 计量
+ * 比如 collaterals = { 'vBNB': 1000, 'vETH': 300 }, debts = { 'vBUSD': 900, 'vUSDC': 100 }
+ * collateralization ratio 为 ($1000 + $300) / ($900 + $100) = 1.3
+ *
+ * @param      {Number}  collaterals  { [vTokenName]: [valueInUSD] }
+ * @param      {Number}  debts        { [vTokenName]: [valueInUSD] }
+ */
+VenusApp.prototype.initMarketWithMultipleAssets = async function(collaterals, debts) {
+  const accounts = await getNamedAccounts();
+  const [comptroller, priceOracle] = await Promise.all([
+    getContractInstance('VenusComptroller', this.userWallet),
+    getContractInstance('VenusPriceOracle', this.userWallet),
+  ]);
+  /* enter markets */
+  const vTokensAddresses = [];
+  for (let vTokenName in { ...collaterals, ...debts }) {
+    vTokensAddresses.push(accounts[vTokenName]);
+  }
+  await comptroller.enterMarkets(vTokensAddresses).then((tx) => tx.wait());
+  /* deposit */
+  const pancakeSwapApp = new PancakeSwapApp(this.userWallet);
+  for (let vTokenName in collaterals) {
+    const valueInUSD = collaterals[vTokenName];
+    const vToken = await getContractInstance(vTokenName, this.userWallet);
+    const underlyingTokenPrice = await priceOracle.getUnderlyingPrice(vToken.address);
+    const _1e18 = parseUnits('1', 18);
+    const amountInWei = parseEther(valueInUSD.toString()).mul(_1e18).div(underlyingTokenPrice);
+    if (vTokenName === 'vBNB') {
+      await vToken.mint({ value: amountInWei }).then((tx) => tx.wait());
+    } else {
+      const underlyingTokenAddress = await vToken.underlying();
+      const underlyingToken = new ethers.Contract(underlyingTokenAddress, ERC20ABI, this.userWallet);
+      const underlyingTokenName = await underlyingToken.symbol();
+      await pancakeSwapApp.swapETHForExactTokens(underlyingTokenName, amountInWei);
+      await underlyingToken.approve(vToken.address, amountInWei).then((tx) => tx.wait());
+      await vToken.mint(amountInWei).then((tx) => tx.wait());
+    }
+    console.log(`[Venus] deposit ${formatEther(amountInWei)}($${valueInUSD}) in ${vTokenName}`);
+  }
+  /* borrow */
+  for (let vTokenName in debts) {
+    const valueInUSD = debts[vTokenName];
+    const vToken = await getContractInstance(vTokenName, this.userWallet);
+    const underlyingTokenPrice = await priceOracle.getUnderlyingPrice(vToken.address);
+    const _1e18 = parseUnits('1', 18);
+    const amountInWei = parseEther(valueInUSD.toString()).mul(_1e18).div(underlyingTokenPrice);
+    await vToken.borrow(amountInWei).then((tx) => tx.wait());
+    console.log(`[Venus] borrow ${formatEther(amountInWei)}($${valueInUSD}) from ${vTokenName}`);
+  }
+  /* liquidity */
+  const [error, liquidity, shortfall] = await comptroller.getAccountLiquidity(this.userWallet.address);
+  console.log(`[Venus] liquidity (available borrows in USD): $${formatEther(liquidity)}`);
+}
+
 
 /**
  * 存入 BNB 并借出 BUSD 以达到一个指定的质押率

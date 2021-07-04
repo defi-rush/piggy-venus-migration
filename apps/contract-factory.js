@@ -2,8 +2,7 @@ const { ethers, getNamedAccounts, deployments } = require('hardhat');
 const CONTRACTS = {};
 
 const vTokenABI = [
-  // 'function mint()',
-  'function mint() payable',
+  'function mint(uint256 mintAmount)',
   'function approve(address spender, uint256 amount) returns (bool)',
   'function redeem(uint redeemTokens) returns (uint)',
   'function redeemUnderlying(uint redeemAmount) returns (uint)',
@@ -12,6 +11,7 @@ const vTokenABI = [
   'function repayBorrowBehalf(address borrower, uint repayAmount) returns (uint)',
   /* 为了让 ethers.Contract.METHOD_NAME 直接返回结果, view 修饰符不能去掉 */
   'function decimals() view returns (uint)',
+  'function underlying() view returns (address)',
   'function exchangeRateStored() view returns (uint)',
   'function balanceOf(address account) view returns (uint)',
   'function borrowBalanceStored(address account) view returns (uint)',
@@ -25,6 +25,7 @@ const vTokenABI = [
 const ERC20ABI = [
   'function deposit() public payable',
   'function withdraw(uint wad)',
+  'function symbol() view returns (string)',
   'function totalSupply() view returns (uint256)',
   'function balanceOf(address account) view returns (uint256)',
   'function transfer(address recipient, uint256 amount) returns (bool)',
@@ -70,10 +71,17 @@ const ABIs = {
     'function findInsertPosition(uint256 _NICR, address _prevId, address _nextId) view returns (address, address)',
     'function getSize() view returns (uint256)',
   ],
-  vBNB: [ ...vTokenABI ],
+  vBNB: [
+    'function mint() payable',
+    ...vTokenABI.slice(1),
+  ],
+  vETH: [ ...vTokenABI ],
   vBUSD: [ ...vTokenABI ],
+  vUSDC: [ ...vTokenABI ],
   WBNB: [ ...ERC20ABI ],
+  ETH: [ ...ERC20ABI ],
   BUSD: [ ...ERC20ABI ],
+  USDC: [ ...ERC20ABI ],
   PUSD: [ ...ERC20ABI ],
 };
 
@@ -92,5 +100,7 @@ async function getContractInstance(name, signer) {
 }
 
 module.exports = {
-  getContractInstance
+  getContractInstance,
+  vTokenABI,
+  ERC20ABI,
 }

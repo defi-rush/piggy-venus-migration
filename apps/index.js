@@ -24,7 +24,12 @@ App.prototype.initialize = async function() {
   const faucet = new FaucetApp(this.userWallet);
   await faucet.requestBNB(20);
   const venusApp = new VenusApp(this.userWallet);
-  await venusApp.initMarketWithExactCR(5, 130);
+  // await venusApp.initMarketWithExactCR(5, 130);
+  await venusApp.initMarketWithMultipleAssets({
+    'vBNB': 1000, 'vETH': 300
+  }, {
+    'vBUSD': 900, 'vUSDC': 100
+  });
 }
 
 App.prototype.precheck = async function() {
@@ -57,13 +62,14 @@ async function shotshotAndRun() {
 
   try {
     await app.initialize();
-    await app.precheck();
-    await app.flashloan();
+    // await app.precheck();
+    // await app.flashloan();
   } catch(err) {
     console.log(err);
   }
 
-  // await network.provider.send('evm_revert', [snapshotId]);
+  await network.provider.send('evm_revert', [snapshotId]);
+  console.log('reverted to snapshot:', snapshotId);
 }
 
 shotshotAndRun()

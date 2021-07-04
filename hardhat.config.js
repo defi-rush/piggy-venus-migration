@@ -53,9 +53,17 @@ module.exports = {
       'localhost': '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c',
       56: '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c',
     },
+    ETH: {
+      'localhost': '0x2170ed0880ac9a755fd29b2688956bd959f933f8',
+      56: '0x2170ed0880ac9a755fd29b2688956bd959f933f8',
+    },
     BUSD: {
       'localhost': '0xe9e7cea3dedca5984780bafc599bd69add087d56',
       56: '0xe9e7cea3dedca5984780bafc599bd69add087d56',
+    },
+    USDC: {
+      'localhost': '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',
+      56: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',
     },
     PUSD: {
       'localhost': '0xedbdb5c2f68ece62ef35134a22156e665c3b06e3',
@@ -74,9 +82,17 @@ module.exports = {
       'localhost': '0xa07c5b74c9b40447a954e1466938b865b6bbea36',
       56: '0xa07c5b74c9b40447a954e1466938b865b6bbea36',
     },
+    vETH: {
+      'localhost': '0xf508fcd89b8bd15579dc79a6827cb4686a3592c8',
+      56: '0xf508fcd89b8bd15579dc79a6827cb4686a3592c8',
+    },
     vBUSD: {
       'localhost': '0x95c78222b3d6e262426483d42cfa53685a67ab9d',
       56: '0x95c78222b3d6e262426483d42cfa53685a67ab9d',
+    },
+    vUSDC: {
+      'localhost': '0xeca88125a5adbe82614ffc12d0db554e2e2867c8',
+      56: '0xeca88125a5adbe82614ffc12d0db554e2e2867c8',
     },
     /* dodo  */
     DODOStablePool: {
