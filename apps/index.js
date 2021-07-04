@@ -18,7 +18,8 @@ function App() {}
 App.prototype.initialize = async function(privateKey) {
   this.userWallet = new ethers.Wallet(privateKey, ethers.provider);
   this.piggyApp = new PiggyApp(this.userWallet);
-  this.vaultMigration = await deployments.get('VaultMigration');
+  const VaultMigration = await deployments.get('VaultMigration');
+  this.vaultMigration = new ethers.Contract(VaultMigration.address, VaultMigration.abi, this.userWallet);
   [
     this.vBNB,
     this.vBUSD,
@@ -66,9 +67,7 @@ App.prototype.precheck = async function() {
   // TODO, flashloan 的手续费还要确认下, 要用 querySellQuote 算出 pusdDebt
   // uint256 pusdDebt = venusVars.borrowBalance * 101 / 100;
   const pusdDebt = borrowBalance.mul(101).div(100);
-  // 存入 piggy 的 bnb 稍微少一点, 确保足够,
-  // TODO, 这一步可能不需要, 确认下
-  const bnbColl = bnbBalance.mul(99).div(100);
+  const bnbColl = bnbBalance;
 
   /* TODO !
    * 检查一下 liquidityToRemove
@@ -102,15 +101,17 @@ App.prototype.flashloan = async function({
 
   /* 3. flashloan */
   console.log('[FlashLoan] starting');
+  console.log('[FlashLoan] bnbColl/pusdDebt', ethers.utils.formatEther(bnbColl), ethers.utils.formatEther(pusdDebt));
   const abiCoder = new ethers.utils.AbiCoder();
-  const baseAmount = borrowBalance.mul(101).div(100);  // 多借一点 BUSD, 因为执行期间利息又增加了
-  const quoteAmount = 0;  // PUSD
-  const assetTo = this.vaultMigration.address;
-  const data = abiCoder.encode(
-    ['uint256', 'uint256', 'uint256', 'address', 'address'],
-    [bnbColl, pusdDebt, maxFee, upperHint, lowerHint],
-  );
-  await this.dodoStablePool.flashLoan(baseAmount, quoteAmount, assetTo, data).then((tx) => tx.wait());
+  // const baseAmount = borrowBalance.mul(101).div(100);  // 多借一点 BUSD, 因为执行期间利息又增加了
+  // const quoteAmount = 0;  // PUSD
+  // const assetTo = this.vaultMigration.address;
+  // const data = abiCoder.encode(
+  //   ['uint256', 'uint256', 'uint256', 'address', 'address'],
+  //   [bnbColl, pusdDebt, maxFee, upperHint, lowerHint],
+  // );
+  // await this.dodoStablePool.flashLoan(baseAmount, quoteAmount, assetTo, data).then((tx) => tx.wait());
+  await this.vaultMigration.startMigrate(upperHint, lowerHint).then((tx) => tx.wait());
   console.log('[FlashLoan] end');
 }
 
@@ -139,8 +140,8 @@ async function shotshotAndRun() {
     console.log(err);
   }
 
-  await network.provider.send('evm_revert', [snapshotId]);
-  console.log('reverted to snapshot:', snapshotId);
+  // await network.provider.send('evm_revert', [snapshotId]);
+  // console.log('reverted to snapshot:', snapshotId);
 }
 
 shotshotAndRun()

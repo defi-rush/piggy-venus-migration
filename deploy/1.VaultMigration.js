@@ -6,9 +6,9 @@ module.exports = async ({
   const {
     deployer,
     DODOStablePool,
-    // VenusPriceOracle,
+    VenusPriceOracle,
     VenusComptroller,
-    // PiggyTroveManager,
+    PiggyTroveManager,
     PiggyBorrowerOperations,
     BUSD, PUSD, vBNB, vBUSD,
   } = await getNamedAccounts();
@@ -17,8 +17,9 @@ module.exports = async ({
     log: true,
     args: [
       DODOStablePool,
-      // VenusPriceOracle,
+      VenusPriceOracle,
       VenusComptroller,
+      PiggyTroveManager,
       PiggyBorrowerOperations,
       BUSD, PUSD, vBNB, vBUSD
     ],
