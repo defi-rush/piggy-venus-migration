@@ -38,8 +38,15 @@ App.prototype.mockUserAccount = async function() {
   const venusApp = new VenusApp(this.userWallet);
   // await venusApp.initMarketWithExactCR(5, 130);
   await venusApp.initMarketWithMultipleAssets(
-    { 'vBNB': 1200, 'vETH': 60 },  // collaterals
-    { 'vBUSD': 900, 'vUSDC': 100 },  // debts
+    /* 将清空所有头寸 */
+    { 'vBNB': 1200 },  // collaterals
+    { 'vBUSD': 900 },  // debts
+
+    /* 剩余抵押率不足 */
+    // { 'vBNB': 1200, 'vETH': 60 },  // collaterals
+    // { 'vBUSD': 900, 'vUSDC': 100 },  // debts
+
+    /* 剩余抵押率足够 */
     // { 'vBNB': 1000, 'vETH': 300 },  // collaterals
     // { 'vBUSD': 800, 'vUSDC': 200 },  // debts
   );
@@ -57,19 +64,21 @@ App.prototype.precheck = async function() {
   // 加上手续费 0.3% ~ 1%
   const pusdDebt = borrowBalance.mul(101).div(100);
 
-  /*
-   * TODO: check liquidityToRemove
+  /* TODO !
+   * 检查一下 liquidityToRemove
+   * 合约里 vBNB.transferFrom 在 liquidity 不足的时候会执行失败, 合约里不需要在判断 liquidityToRemove
+   * 因为 liquidityToRemove 计算有误差, 不能直接 require(liquidityToRemove <= liquidity)
    */
+  // (uint256 error, uint256 liquidity, uint256 shortfall) = venusComptroller.getAccountLiquidity(sender);
+  // assert(error == 0 && shortfall == 0 && liquidity > 0);
+  //
   // (bool isListed, uint collateralFactorMantissa, bool isXvsed) = venusComptroller.markets(address(vBNB));
-
-  // const r_vBNB = await comptroller.markets(accounts['vBNB']);
-  // const r_vETH = await comptroller.markets(accounts['vETH']);
-  // const r_vBUSD = await comptroller.markets(accounts['vBUSD']);
-  // const r_vUSDC = await comptroller.markets(accounts['vUSDC']);
-  // console.log('vBNB', formatEther(r_vBNB[1]));
-  // console.log('vETH', formatEther(r_vETH[1]));
-  // console.log('vBUSD', formatEther(r_vBUSD[1]));
-  // console.log('vUSDC', formatEther(r_vUSDC[1]));
+  // assert(isListed && isXvsed && collateralFactorMantissa > 0);
+  //
+  // uint256 valueBNB = venusVars.bnbBalance * venusVars.priceBNB / 1e18;  // usd value * 1e18
+  // uint256 valueBUSD = venusVars.borrowBalance * venusVars.priceBUSD / 1e18;  // usd value * 1e18
+  // uint256 liquidityToRemove = valueBNB * collateralFactorMantissa / 1e18 - valueBUSD;
+  // // require(liquidityToRemove <= liquidity);
 
   return { vBnbBalance, bnbBalance, pusdDebt, borrowBalance };
 }

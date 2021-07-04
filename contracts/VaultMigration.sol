@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import "./interfaces/IDODOCallee.sol";
 import "./interfaces/IVenusToken.sol";
-import "./interfaces/IVenusPriceOracle.sol";
+// import "./interfaces/IVenusPriceOracle.sol";
 import "./interfaces/IVenusComptroller.sol";
 import "./interfaces/IBorrowerOperations.sol";
 
@@ -30,10 +30,10 @@ contract VaultMigration is IDODOCallee {
         uint256 vBnbBalance;
         uint256 bnbBalance;
         uint256 borrowBalance;
-        uint256 priceBNB;
-        uint256 priceBUSD;
+        // uint256 priceBNB;
+        // uint256 priceBUSD;
     }
-    IVenusPriceOracle immutable vPriceOracle;
+    // IVenusPriceOracle immutable vPriceOracle;
     IVenusComptroller immutable venusComptroller;
     IVenusToken public immutable vBNB;
     IVenusToken public immutable vBUSD;
@@ -54,7 +54,7 @@ contract VaultMigration is IDODOCallee {
 
     constructor(
         address _stablePool,
-        IVenusPriceOracle _vPriceOracle,
+        // IVenusPriceOracle _vPriceOracle,
         IVenusComptroller _venusComptroller,
         IBorrowerOperations _borrowerOperations,
         IERC20 _tokenBUSD,
@@ -63,14 +63,14 @@ contract VaultMigration is IDODOCallee {
         IVenusToken _vBUSD
     ) {
         stablePool = _stablePool;
-        vPriceOracle = _vPriceOracle;
+        // vPriceOracle = _vPriceOracle;
         venusComptroller = _venusComptroller;
         borrowerOperations = _borrowerOperations;
         tokenBUSD = _tokenBUSD;
         tokenPUSD = _tokenPUSD;
         vBNB = _vBNB;
         vBUSD = _vBUSD;
-        // vBUSD.repayBorrowBehalf 要从本合约转出 BUSD
+        /* vBUSD.repayBorrowBehalf 要从本合约转出 BUSD */
         _tokenBUSD.approve(address(_vBUSD), type(uint256).max);
     }
 
@@ -83,77 +83,50 @@ contract VaultMigration is IDODOCallee {
 
         vBNB.accrueInterest();
         vBUSD.accrueInterest();
-
         venusVars.vBnbBalance = vBNB.balanceOf(sender);
         venusVars.bnbBalance = vBNB.balanceOfUnderlying(sender);
         venusVars.borrowBalance = vBUSD.borrowBalanceStored(sender);
-
-        venusVars.priceBNB = vPriceOracle.getUnderlyingPrice(vBNB);
-        venusVars.priceBUSD = vPriceOracle.getUnderlyingPrice(vBUSD);
+        // venusVars.priceBNB = vPriceOracle.getUnderlyingPrice(vBNB);
+        // venusVars.priceBUSD = vPriceOracle.getUnderlyingPrice(vBUSD);
 
         require(
             vBNB.allowance(sender, address(this)) >= venusVars.vBnbBalance,
             "vBNB allowance is not enough."
         );
 
-        /* 检查一下 liquidity */
-
-        (uint256 error, uint256 liquidity, uint256 shortfall) = venusComptroller.getAccountLiquidity(sender);
-        assert(error == 0 && shortfall == 0 && liquidity > 0);
-
-        (bool isListed, uint collateralFactorMantissa, bool isXvsed) = venusComptroller.markets(address(vBNB));
-        assert(isListed && isXvsed && collateralFactorMantissa > 0);
-
-        uint256 valueBNB = venusVars.bnbBalance * venusVars.priceBNB / 1e18;  // usd value * 1e18
-        uint256 valueBUSD = venusVars.borrowBalance * venusVars.priceBUSD / 1e18;  // usd value * 1e18
-        uint256 liquidityToRemove = valueBNB * collateralFactorMantissa / 1e18 - valueBUSD;
-        require(liquidityToRemove <= liquidity);
-
-        /* debug code, to be removed. */
-        // console.log("[Venus] vBNB balance", venusVars.vBnbBalance);
-        // console.log("[Venus] deposit/borrow balance", venusVars.bnbBalance, venusVars.borrowBalance);
-        // console.log("[Venus] deposit/borrow value in USD", valueBNB, valueBUSD);
-        // console.log("[Venus] current liquidity", liquidity);
-        // console.log("[Venus] liquidity to remove", liquidityToRemove);
-        // // uint256 debtOnCollateral = valueBNB * 1e18 / valueBUSD;
-        // // console.log("[Venus] debtOnCollateral", debtOnCollateral);
-
         return venusVars;
     }
 
     /**
-     * @dev        Open piggy trove for "sender"
+     * Open piggy trove for "sender"
      * @param      venusVars  The venus variables
      * @param      piggyVars  The piggy variables
      * @param      sender     The msg.sender who sends the flashloan
      */
     function _openTrove(VenusLocalVars memory venusVars, PiggyLocalVars memory piggyVars, address sender) internal {
         uint256 bnbColl = address(this).balance;
-        console.log("BNB balance before openTrove", bnbColl);
         // TODO: 要用 querySellQuote 算出 pusdDebt, 目前先直接用 borrowBalance * 1.03
         uint256 pusdDebt = venusVars.borrowBalance * 101 / 100;
         uint256 maxFee = uint256(1e18) / 100;  // 0.01 = 1%;
-        console.log("Ask for PUSD", pusdDebt);
         borrowerOperations.openTroveOnBehalfOf{value: bnbColl}(
             sender, maxFee, pusdDebt, piggyVars.upperHint, piggyVars.lowerHint);
         uint256 balancePUSDOfSender = tokenPUSD.balanceOf(sender);
-        // console.log("PUSD of sender", balancePUSDOfSender);
-        // console.log("PUSD allowance", tokenPUSD.allowance(sender, address(this)));
         tokenPUSD.transferFrom(sender, address(this), balancePUSDOfSender);
     }
 
+    /**
+     * Return PUSD and BUSD to DODO stable pool
+     * 如果转多了, dodo 会把多出来的转回给 sender (调用 flashloan 的那个用户) 而不是本合约
+     */
     function _repayFlashLoan() internal {
         uint256 balanceBUSD = tokenBUSD.balanceOf(address(this));
         uint256 balancePUSD = tokenPUSD.balanceOf(address(this));
-        // console.log("stablePool", stablePool);
         tokenBUSD.transfer(stablePool, balanceBUSD);
         tokenPUSD.transfer(stablePool, balancePUSD);
-        // 如果转多了, dodo 会把多出来的转回给 sender (调用 flashloan 的那个用户) 而不是本合约
     }
 
 
     /**
-     * @dev        {developper_note }
      * @param      sender       The msg.sender who sends the flashloan
      * @param      baseAmount   The flashloaned amount of BUSD (1% more than borrowBalance)
      * @param      quoteAmount  The flashloaned amount of PUSD (should be zero)

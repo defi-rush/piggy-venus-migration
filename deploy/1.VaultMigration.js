@@ -6,7 +6,7 @@ module.exports = async ({
   const {
     deployer,
     DODOStablePool,
-    VenusPriceOracle,
+    // VenusPriceOracle,
     VenusComptroller,
     // PiggyTroveManager,
     PiggyBorrowerOperations,
@@ -17,7 +17,7 @@ module.exports = async ({
     log: true,
     args: [
       DODOStablePool,
-      VenusPriceOracle,
+      // VenusPriceOracle,
       VenusComptroller,
       PiggyBorrowerOperations,
       BUSD, PUSD, vBNB, vBUSD
