@@ -14,7 +14,7 @@ apps 目录下面的脚本封装了一些测试用例、预检查逻辑和对迁
 
 这些脚本依赖于 `HRE` (即`require('hardhat')`)，默认情况下 `HRE` 没有被完整的初始化，所以就算是 localhost 的 deployments 或者 provider 都不正确，调用这些脚本的时候需要注意。
 
-1. 直接执行这些脚本的时候如果要切换网络，需要加上 `HARDHAT_NETWORK` 环境变量，比如
+1. 直接执行这些脚本的时候，需要加上 `HARDHAT_NETWORK` 环境变量，比如
 
 ```bash
 HARDHAT_NETWORK=localhost node apps/index.js
@@ -22,7 +22,15 @@ HARDHAT_NETWORK=localhost node apps/index.js
 HARDHAT_NETWORK=mainnet node apps/index.js
 ```
 
-2. 如果是在 test/tasks 中调用这些脚本，`HRE` 的配置和 test/tasks 中的一致
+2. 或者用 `hardhat run` 命令 带上 `--network` 参数，比如
+
+```bash
+npx hardhat run apps/index.js --network localhost
+# or
+npx hardhat run apps/index.js --network mainnet
+```
+
+3. 如果是在 test/tasks 中调用这些脚本，`HRE` 的配置和 test/tasks 中的一致
 
 
 ## Revert with `evm_revert`

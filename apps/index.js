@@ -5,6 +5,8 @@
  *   https://hardhat.org/guides/scripts.html#writing-scripts-with-hardhat
  * HARDHAT_NETWORK environment variable is necessary to run these scripts:
  *   `HARDHAT_NETWORK=localhost node apps/index.js`
+ * or use `hardhat run` script with --network arg
+ *   `npx hardhat run apps/index.js --network localhost`
  */
 const { ethers, deployments, network } = require('hardhat');
 const { getContractInstance } = require('./contract-factory');
@@ -92,7 +94,7 @@ App.prototype.precheck = async function() {
   const valueBNB = bnbBalance.mul(priceBNB).div(_1e18);  // usd value * 1e18
   const valueBUSD = borrowBalance.mul(priceBUSD).div(_1e18);  // usd value * 1e18
   const liquidityToRemove = valueBNB.mul(collateralFactorMantissa).div(_1e18).sub(valueBUSD);
-  console.log(liquidityToRemove.toString(), liquidity.toString());
+  // console.log(liquidityToRemove.toString(), liquidity.toString());
   if (liquidityToRemove.gt(liquidity)) {
     throw new Error('liquidity is not enough after migration');
   }
@@ -114,16 +116,8 @@ App.prototype.flashloan = async function({
   /* 3. flashloan */
   console.log('[FlashLoan] starting');
   console.log('[FlashLoan] bnbColl/pusdDebt', ethers.utils.formatEther(bnbColl), ethers.utils.formatEther(pusdDebt));
-  const abiCoder = new ethers.utils.AbiCoder();
-  // const baseAmount = borrowBalance.mul(101).div(100);  // 多借一点 BUSD, 因为执行期间利息又增加了
-  // const quoteAmount = 0;  // PUSD
-  // const assetTo = this.vaultMigration.address;
-  // const data = abiCoder.encode(
-  //   ['uint256', 'uint256', 'uint256', 'address', 'address'],
-  //   [bnbColl, pusdDebt, maxFee, upperHint, lowerHint],
-  // );
-  // await this.dodoStablePool.flashLoan(baseAmount, quoteAmount, assetTo, data).then((tx) => tx.wait());
-  await this.vaultMigration.startMigrate(upperHint, lowerHint).then((tx) => tx.wait());
+  const res = await this.vaultMigration.startMigrate(upperHint, lowerHint).then((tx) => tx.wait());
+  console.log('[FlashLoan] result', res);
   console.log('[FlashLoan] end');
 }
 
@@ -133,8 +127,8 @@ App.prototype.flashloan = async function({
  * run `npx hardhat revert [snapshotId] --network localhost` to send a `evm_revert` request
  */
 async function shotshotAndRun() {
-  if (!process.env.HARDHAT_NETWORK) {
-    throw new Error('HARDHAT_NETWORK env is required');
+  if (network.name !== 'localhost') {
+    throw new Error('This script only works on localhost');
   }
 
   const app = new App();

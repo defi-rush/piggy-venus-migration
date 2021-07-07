@@ -36,6 +36,14 @@ contract VaultMigration is IDODOCallee {
     ITroveManager public immutable troveManager;
     IBorrowerOperations public immutable borrowerOperations;
 
+    /* Events */
+    event Migrated(
+        address indexed _borrower,
+        uint256 _vBnbBalance,
+        uint256 _borrowBalance,
+        uint256 _bnbColl,
+        uint256 _pusdDebt);
+
 
     /**
      * vBNB.redeem 需要接收 BNB, 这里放一个默认的 receive ether function
@@ -172,6 +180,12 @@ contract VaultMigration is IDODOCallee {
         bytes memory data = abi.encode(
             msg.sender, vBnbBalance, borrowBalance, bnbColl, pusdDebt, _upperHint, _lowerHint);
         dodoStablePool.flashLoan(borrowBalance, 0, address(this), data);
+
+        /**
+         * Final check
+         * TODO: 检查一下余额 ? 到这里应该合约里没有 BNB/PUSD/BUSD 余额了
+         */
+        emit Migrated(msg.sender, vBnbBalance, borrowBalance, bnbColl, pusdDebt);
     }
 
 }
