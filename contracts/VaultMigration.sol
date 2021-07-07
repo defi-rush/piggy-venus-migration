@@ -12,9 +12,12 @@ import "./interfaces/IVenusPriceOracle.sol";
 import "./interfaces/IVenusComptroller.sol";
 import "./interfaces/ITroveManager.sol";
 import "./interfaces/IBorrowerOperations.sol";
+import "./interfaces/IPiggyReward.sol";
 
 
 contract VaultMigration is IDODOCallee {
+    address public governance;
+
     /**
      * DODO stable pool of PUSD/BUSD
      */
@@ -32,6 +35,8 @@ contract VaultMigration is IDODOCallee {
     /* Piggy vars and interfaces */
     ITroveManager public immutable troveManager;
     IBorrowerOperations public immutable borrowerOperations;
+
+    IPiggyReward public piggyReward;
 
     /* Events */
     event Migrated(
@@ -60,6 +65,7 @@ contract VaultMigration is IDODOCallee {
         IVenusToken _vBNB,
         IVenusToken _vBUSD
     ) {
+        governance = msg.sender;
         dodoStablePool = _dodoStablePool;
         vPriceOracle = _vPriceOracle;
         venusComptroller = _venusComptroller;
@@ -71,8 +77,20 @@ contract VaultMigration is IDODOCallee {
         vBUSD = _vBUSD;
         /* vBUSD.repayBorrowBehalf 要从本合约转出 BUSD */
         _tokenBUSD.approve(address(_vBUSD), type(uint256).max);
+        /* allow governance to transfer out residual */
+        _tokenBUSD.approve(governance, type(uint256).max);
+        _tokenPUSD.approve(governance, type(uint256).max);
     }
 
+    function setGovernance(address _governance) public {
+        require(msg.sender == governance, "!governance");
+        governance = _governance;
+    }
+
+    function setPiggyReward(IPiggyReward _piggyReward) public {
+        require(msg.sender == governance, "!governance");
+        piggyReward = _piggyReward;
+    }
 
     /**
      * 一定要确保 msg.sender 是 dodoStablePool,
@@ -184,6 +202,9 @@ contract VaultMigration is IDODOCallee {
          * Final check
          * TODO: 检查一下余额 ? 到这里应该合约里没有 BNB/PUSD/BUSD 余额了
          */
+        if (address(piggyReward) != address(0)) {
+            piggyReward.reward(msg.sender, 1e18);
+        }
         emit Migrated(msg.sender, vBnbBalance, borrowBalance, bnbColl, pusdDebt);
     }
 

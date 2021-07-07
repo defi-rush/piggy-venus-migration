@@ -28,7 +28,7 @@ module.exports = {
       chainId: +(process.env.CHAIN_ID || 31337),
       forking: {
         url: 'https://bsc.getblock.io/mainnet/?api_key=65f1d98d-ac5a-45f8-be38-00ca29126f92',
-        blockNumber: 8773900
+        blockNumber: 8965600
       },
       accounts: [{
         balance: '100000' + '000000000000000000',  // 100000eth
@@ -68,6 +68,10 @@ module.exports = {
     PUSD: {
       'localhost': '0xedbdb5c2f68ece62ef35134a22156e665c3b06e3',
       56: '0xedbdb5c2f68ece62ef35134a22156e665c3b06e3',
+    },
+    PIGGY: {
+      'localhost': '0x1beac6df550be0ad146dd99b4726c6bec9c5c6a5',
+      56: '0x1beac6df550be0ad146dd99b4726c6bec9c5c6a5',
     },
     /* venus */
     VenusComptroller: {

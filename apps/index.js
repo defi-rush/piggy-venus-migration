@@ -21,7 +21,9 @@ App.prototype.initialize = async function(privateKey) {
   this.userWallet = new ethers.Wallet(privateKey, ethers.provider);
   this.piggyApp = new PiggyApp(this.userWallet);
   const VaultMigration = await deployments.get('VaultMigration');
+  const PiggyReward = await deployments.get('PiggyReward');
   this.vaultMigration = new ethers.Contract(VaultMigration.address, VaultMigration.abi, this.userWallet);
+  this.piggyReward = new ethers.Contract(PiggyReward.address, PiggyReward.abi, this.userWallet);
   [
     this.vBNB,
     this.vBUSD,
@@ -117,7 +119,8 @@ App.prototype.flashloan = async function({
   console.log('[FlashLoan] starting');
   console.log('[FlashLoan] bnbColl/pusdDebt', ethers.utils.formatEther(bnbColl), ethers.utils.formatEther(pusdDebt));
   const res = await this.vaultMigration.startMigrate(upperHint, lowerHint).then((tx) => tx.wait());
-  // console.log('[FlashLoan] result', res);
+  const rewardBalance = await this.piggyReward.balanceOf(this.userWallet.address)
+  console.log('[FlashLoan] piggy rewards', ethers.utils.formatEther(rewardBalance));
   console.log('[FlashLoan] end');
 }
 

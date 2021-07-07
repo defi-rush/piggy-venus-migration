@@ -84,6 +84,7 @@ const ABIs = {
   BUSD: [ ...ERC20ABI ],
   USDC: [ ...ERC20ABI ],
   PUSD: [ ...ERC20ABI ],
+  PUSD: [ ...ERC20ABI ],
 };
 
 async function getContractInstance(name, signer) {

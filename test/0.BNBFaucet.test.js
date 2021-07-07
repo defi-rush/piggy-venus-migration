@@ -4,12 +4,11 @@ const setup = require('./helpers/setup');
 const { getContractInstance } = require('../apps/contract-factory');
 
 describe('Test BNB faucet', function() {
-  let bNBFaucet, userWallet;
+  let bNBFaucet, userWallet, snapshotId;
 
   before(async () => {
-    // const res = await network.provider.request({
-    //   method: 'evm_snapshot'
-    // });
+    snapshotId = await network.provider.send('evm_snapshot');
+    console.log(`took a snapshot: ${snapshotId}`);
     userWallet = setup.getUserWallet();
     const BNBFaucet = await deployments.get('BNBFaucet');
     bNBFaucet = new ethers.Contract(BNBFaucet.address, BNBFaucet.abi, ethers.provider);
@@ -63,6 +62,10 @@ describe('Test BNB faucet', function() {
     //   method: 'evm_revert',
     //   params: ['0x1']
     // });
+  });
+
+  after(async () => {
+    await network.provider.send('evm_revert', [snapshotId]);
   });
 
 });
