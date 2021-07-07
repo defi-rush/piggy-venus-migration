@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 import "hardhat/console.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import "./interfaces/IDODOCallee.sol";
 import "./interfaces/IDODOStablePool.sol";
@@ -16,8 +15,6 @@ import "./interfaces/IBorrowerOperations.sol";
 
 
 contract VaultMigration is IDODOCallee {
-    using SafeERC20 for IERC20;
-
     /**
      * DODO stable pool of PUSD/BUSD
      */
@@ -135,7 +132,9 @@ contract VaultMigration is IDODOCallee {
          */
         // tokenBUSD.transfer(address(dodoStablePool), tokenBUSD.balanceOf(address(this)));
         // tokenPUSD.transfer(address(dodoStablePool), tokenPUSD.balanceOf(address(this)));
-        tokenPUSD.transferFrom(borrower, address(dodoStablePool), _balancePUSDAfter - _balancePUSDBefore);
+        bool pusdTransfered = tokenPUSD.transferFrom(
+            borrower, address(dodoStablePool), _balancePUSDAfter - _balancePUSDBefore);
+        require(pusdTransfered, "failed transfer tokenPUSD to DODO Stable pool");
     }
 
 

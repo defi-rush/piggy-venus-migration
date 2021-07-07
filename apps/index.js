@@ -117,7 +117,7 @@ App.prototype.flashloan = async function({
   console.log('[FlashLoan] starting');
   console.log('[FlashLoan] bnbColl/pusdDebt', ethers.utils.formatEther(bnbColl), ethers.utils.formatEther(pusdDebt));
   const res = await this.vaultMigration.startMigrate(upperHint, lowerHint).then((tx) => tx.wait());
-  console.log('[FlashLoan] result', res);
+  // console.log('[FlashLoan] result', res);
   console.log('[FlashLoan] end');
 }
 
