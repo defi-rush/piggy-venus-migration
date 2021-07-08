@@ -1,4 +1,4 @@
-/*
+/**
  * const hre = require('hardhat') returns an instance of the HRE.
  * using HRE outside the hardhat tasks is explained here:
  *   https://hardhat.org/advanced/hardhat-runtime-environment.html#explicitly
@@ -83,7 +83,7 @@ App.prototype.precheck = async function() {
   console.log('[Precheck] vBnbBalance', ethers.utils.formatUnits(vBnbBalance, 8));
   console.log('[Precheck] borrowBalance', ethers.utils.formatEther(borrowBalance));
 
-  /*
+  /**
    * 检查一下 liquidityToRemove
    * 合约里 vBNB.transferFrom 在 liquidity 不足的时候会执行失败, 合约里不需要再判断 liquidityToRemove
    * 因为 liquidityToRemove 计算有误差, 这里只是个大致的估算
@@ -100,7 +100,11 @@ App.prototype.precheck = async function() {
   const liquidityToRemove = valueBNB.mul(collateralFactorMantissa).div(_1e18).sub(valueBUSD);
   // console.log(liquidityToRemove.toString(), liquidity.toString());
   if (liquidityToRemove.gt(liquidity)) {
-    throw new Error('liquidity is not enough after migration');
+    throw new Error('Liquidity is not enough after migration');
+  }
+  // if valueBNB / valueBUSD <= 110 / 100, throw
+  if (valueBNB.mul(100).lte(valueBUSD.mul(110))) {
+    throw new Error('Collateral ratio must be greater than 110% for Piggy');
   }
 
   return { bnbBalance, vBnbBalance, borrowBalance };
@@ -109,7 +113,7 @@ App.prototype.precheck = async function() {
 App.prototype.execute = async function({
   bnbBalance, vBnbBalance, borrowBalance
 }) {
-  /*
+  /**
    * 1. 预估一下 bnb 和 pusd 的数量
    * busd 加上 flashloan 的手续费 0.3% ~ 1%
    * TODO, flashloan 的手续费还要确认下, 要用 querySellQuote 算出 pusdDebt
@@ -167,7 +171,7 @@ async function shotshotAndRun(publicKey) {
 }
 
 // 可以传一个已经在 venus 有头寸的用户的钱包地址
-// shotshotAndRun('0x4be1c4779ea563f20371dbb689a61a60c3d8bf73')
+// shotshotAndRun('0xe9504835ac8a68178aaffd3145fd7e4a48683d2a')
 shotshotAndRun()
   .then(() => process.exit(0))
   .catch(error => {

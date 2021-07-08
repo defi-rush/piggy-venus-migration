@@ -31,6 +31,13 @@ contract VaultMigration is IDODOCallee {
     IVenusComptroller immutable venusComptroller;
     IVenusToken public immutable vBNB;
     IVenusToken public immutable vBUSD;
+    struct VenusLocalVars {
+        uint256 vBnbBalance;
+        uint256 bnbBalance;
+        uint256 borrowBalance;
+        uint256 priceBNB;
+        uint256 priceBUSD;
+    }
 
     /* Piggy vars and interfaces */
     ITroveManager public immutable troveManager;
@@ -84,7 +91,11 @@ contract VaultMigration is IDODOCallee {
 
     function setGovernance(address _governance) public {
         require(msg.sender == governance, "!governance");
+        tokenBUSD.approve(governance, 0);
+        tokenPUSD.approve(governance, 0);
         governance = _governance;
+        tokenBUSD.approve(governance, type(uint256).max);
+        tokenPUSD.approve(governance, type(uint256).max);
     }
 
     function setPiggyReward(IPiggyReward _piggyReward) public {
@@ -167,14 +178,17 @@ contract VaultMigration is IDODOCallee {
          */
         vBNB.accrueInterest();
         vBUSD.accrueInterest();
-        uint256 borrowBalance = vBUSD.borrowBalanceStored(msg.sender);
-        uint256 bnbBalance = vBNB.balanceOfUnderlying(msg.sender);
-        uint256 vBnbBalance = vBNB.balanceOf(msg.sender);
-        uint256 priceBNB = vPriceOracle.getUnderlyingPrice(vBNB);
-        // uint256 priceBUSD = vPriceOracle.getUnderlyingPrice(vBUSD);
-        require(vBNB.allowance(msg.sender, address(this)) >= vBnbBalance, "vBNB allowance is not enough");
+
+        VenusLocalVars memory vInfo;
+        vInfo.borrowBalance = vBUSD.borrowBalanceStored(msg.sender);
+        vInfo.bnbBalance = vBNB.balanceOfUnderlying(msg.sender);
+        vInfo.vBnbBalance = vBNB.balanceOf(msg.sender);
+        vInfo.priceBNB = vPriceOracle.getUnderlyingPrice(vBNB);
+        vInfo.priceBUSD = vPriceOracle.getUnderlyingPrice(vBUSD);
+        require(vBNB.allowance(msg.sender, address(this)) >= vInfo.vBnbBalance, "vBNB allowance is not enough");
+        // vInfo.bnbBalance * vInfo.priceBNB / (vInfo.borrowBalance * vInfo.priceBUSD) > 110 / 100,
         require(
-            bnbBalance * priceBNB / borrowBalance > 1e18 * 110 / 100,
+            vInfo.bnbBalance * vInfo.priceBNB * 100 > (vInfo.borrowBalance * vInfo.priceBUSD) * 110,
             "Collateral ratio must be greater than 110% for Piggy");
 
         /**
@@ -183,10 +197,10 @@ contract VaultMigration is IDODOCallee {
          *           在同一个区块里, bnbColl 始终等于 vBNB.balanceOfUnderlying
          * pusdDebt: 从 Piggy 借出的 PUSD 数量, 约等于 borrowBalance (BUSD) 加上 0.3% 的 flashloan 手续费
          */
-        uint256 bnbColl = bnbBalance;
-        uint256 pusdDebt = borrowBalance * 101 / 100;  // 加上 1%
+        uint256 bnbColl = vInfo.bnbBalance;
+        uint256 pusdDebt = vInfo.borrowBalance * 101 / 100;  // 加上 1%
         (uint256 receiveBaseAmount, , ,) = dodoStablePool.querySellQuote(address(this), pusdDebt);
-        assert(borrowBalance <= receiveBaseAmount);
+        assert(vInfo.borrowBalance <= receiveBaseAmount);
         require(tokenPUSD.allowance(msg.sender, address(this)) >= pusdDebt, "PUSD allowance is not enough");
 
         /**
@@ -195,17 +209,17 @@ contract VaultMigration is IDODOCallee {
          *   quoteAmount: 0
          */
         bytes memory data = abi.encode(
-            msg.sender, vBnbBalance, borrowBalance, bnbColl, pusdDebt, _upperHint, _lowerHint);
-        dodoStablePool.flashLoan(borrowBalance, 0, address(this), data);
+            msg.sender, vInfo.vBnbBalance, vInfo.borrowBalance, bnbColl, pusdDebt, _upperHint, _lowerHint);
+        dodoStablePool.flashLoan(vInfo.borrowBalance, 0, address(this), data);
 
         /**
          * Final check
-         * TODO: 检查一下余额 ? 到这里应该合约里没有 BNB/PUSD/BUSD 余额了
+         * 到这里应该合约里没有 BNB/PUSD/BUSD 余额了,
          */
         if (address(piggyReward) != address(0)) {
             piggyReward.reward(msg.sender, 1e18);
         }
-        emit Migrated(msg.sender, vBnbBalance, borrowBalance, bnbColl, pusdDebt);
+        emit Migrated(msg.sender, vInfo.vBnbBalance, vInfo.borrowBalance, bnbColl, pusdDebt);
     }
 
 }
