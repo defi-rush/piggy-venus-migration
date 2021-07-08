@@ -63,6 +63,7 @@ VenusApp.prototype.initMarketWithMultipleAssets = async function(collaterals, de
     // 如果可借额度不够, 这里居然不会报错, 所以下面需要检查并确认一下借出金额
     const vTokenBorrowBalance = await vToken.borrowBalanceStored(this.userWallet.address);
     if (!vTokenBorrowBalance.eq(amountInWei)) {
+      // 注意! 这个 eq 的判断假设用户之前没有 borrow 过, 因为这个方法只给本地测试用户使用
       throw new Error(`[Venus] failed borrow ${formatEther(amountInWei)}($${valueInUSD}) from ${vTokenName}`);
     }
     console.log(`[Venus] borrow ${formatEther(amountInWei)}($${valueInUSD}) from ${vTokenName}`);

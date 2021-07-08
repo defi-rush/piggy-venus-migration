@@ -17,13 +17,18 @@ const { PiggyApp } = require('./piggy');
 
 function App() {}
 
-App.prototype.initialize = async function(privateKey) {
-  this.userWallet = new ethers.Wallet(privateKey, ethers.provider);
+App.prototype.initialize = async function({ publicKey, privateKey }) {
+  if (privateKey) {
+    this.userWallet = new ethers.Wallet(privateKey, ethers.provider);
+  } else if (publicKey) {
+    await network.provider.send('hardhat_impersonateAccount', [publicKey]);
+    this.userWallet = await ethers.getSigner(publicKey);
+    const balance = await this.userWallet.getBalance()
+    console.log(`impersonate account ${publicKey}, balance ${ethers.utils.formatEther(balance)}`);
+  } else {
+    throw new Error('Ether publicKey or privateKey is required');
+  }
   this.piggyApp = new PiggyApp(this.userWallet);
-  const VaultMigration = await deployments.get('VaultMigration');
-  const PiggyReward = await deployments.get('PiggyReward');
-  this.vaultMigration = new ethers.Contract(VaultMigration.address, VaultMigration.abi, this.userWallet);
-  this.piggyReward = new ethers.Contract(PiggyReward.address, PiggyReward.abi, this.userWallet);
   [
     this.vBNB,
     this.vBUSD,
@@ -41,7 +46,7 @@ App.prototype.initialize = async function(privateKey) {
   ]);
 }
 
-App.prototype.mockUserAccount = async function() {
+App.prototype.prepareVenusPositions = async function() {
   const faucet = new FaucetApp(this.userWallet);
   await faucet.requestBNB(20);
   const venusApp = new VenusApp(this.userWallet);
@@ -74,12 +79,9 @@ App.prototype.precheck = async function() {
 
   const _1e18 = ethers.utils.parseUnits('1', 18);
   const bnbBalance = vBnbBalance.mul(exchangeRate).div(_1e18);
-
-  // busd 加上 flashloan 的手续费 0.3% ~ 1%
-  // TODO, flashloan 的手续费还要确认下, 要用 querySellQuote 算出 pusdDebt
-  // uint256 pusdDebt = venusVars.borrowBalance * 101 / 100;
-  const pusdDebt = borrowBalance.mul(101).div(100);
-  const bnbColl = bnbBalance;
+  console.log('[Precheck] bnbBalance', ethers.utils.formatEther(bnbBalance));
+  console.log('[Precheck] vBnbBalance', ethers.utils.formatUnits(vBnbBalance, 8));
+  console.log('[Precheck] borrowBalance', ethers.utils.formatEther(borrowBalance));
 
   /*
    * 检查一下 liquidityToRemove
@@ -101,27 +103,30 @@ App.prototype.precheck = async function() {
     throw new Error('liquidity is not enough after migration');
   }
 
-  return { vBnbBalance, borrowBalance, bnbColl, pusdDebt };
+  return { bnbBalance, vBnbBalance, borrowBalance };
 }
 
-App.prototype.flashloan = async function({
-  vBnbBalance, borrowBalance, bnbColl, pusdDebt
+App.prototype.execute = async function({
+  bnbBalance, vBnbBalance, borrowBalance
 }) {
-  /* 1. pre-calculate trove params */
-  const maxFee = ethers.utils.parseEther('1').mul(3).div(100); // Slippage protection: 3%
-  const [upperHint, lowerHint] = await this.piggyApp.findHintForTrove(bnbColl, pusdDebt);
+  /*
+   * 1. 预估一下 bnb 和 pusd 的数量
+   * busd 加上 flashloan 的手续费 0.3% ~ 1%
+   * TODO, flashloan 的手续费还要确认下, 要用 querySellQuote 算出 pusdDebt
+   * uint256 pusdDebt = venusVars.borrowBalance * 101 / 100;
+   */
+  const bnbColl = bnbBalance;
+  const pusdDebt = borrowBalance.mul(101).div(100);
 
   /* 2. approve to vault migration  */
-  await this.vBNB.approve(this.vaultMigration.address, vBnbBalance.mul(2)).then((tx) => tx.wait());
-  await this.tokenPUSD.approve(this.vaultMigration.address, pusdDebt.mul(2)).then((tx) => tx.wait());
+  const VaultMigration = await deployments.get('VaultMigration');
+  await this.vBNB.approve(VaultMigration.address, vBnbBalance.mul(2)).then((tx) => tx.wait());
+  await this.tokenPUSD.approve(VaultMigration.address, pusdDebt.mul(2)).then((tx) => tx.wait());
 
-  /* 3. flashloan */
-  console.log('[FlashLoan] starting');
-  console.log('[FlashLoan] bnbColl/pusdDebt', ethers.utils.formatEther(bnbColl), ethers.utils.formatEther(pusdDebt));
-  const res = await this.vaultMigration.startMigrate(upperHint, lowerHint).then((tx) => tx.wait());
-  const rewardBalance = await this.piggyReward.balanceOf(this.userWallet.address)
-  console.log('[FlashLoan] piggy rewards', ethers.utils.formatEther(rewardBalance));
-  console.log('[FlashLoan] end');
+  /* 3. execute */
+  console.log('[Execute] bnbColl', ethers.utils.formatEther(bnbColl));
+  console.log('[Execute] pusdDebt', ethers.utils.formatEther(pusdDebt));
+  await this.piggyApp.startMigrate(bnbColl, pusdDebt);
 }
 
 
@@ -129,22 +134,30 @@ App.prototype.flashloan = async function({
  * main process
  * run `npx hardhat revert [snapshotId] --network localhost` to send a `evm_revert` request
  */
-async function shotshotAndRun() {
+async function shotshotAndRun(publicKey) {
   if (network.name !== 'localhost') {
     throw new Error('This script only works on localhost');
   }
 
   const app = new App();
-  await app.initialize(require('../.testaccount').privateKey);  /* user wallet for test */
+  /* user wallet for test */
+  const { privateKey } = require('../.testaccount');
+  const hasVenusPositions = !!publicKey;
+  await app.initialize({
+    // privateKey
+    publicKey,
+  });
 
   const snapshotId = await network.provider.send('evm_snapshot');
   console.log('start on snapshot:', snapshotId);
 
   try {
-    await app.mockUserAccount();
+    if (!hasVenusPositions) {
+      await app.prepareVenusPositions();
+    }
     /* 实际的流程从 precheck 开始 */
     const precheckResult = await app.precheck();
-    await app.flashloan(precheckResult);
+    await app.execute(precheckResult);
   } catch(err) {
     console.log(err);
   }
@@ -153,6 +166,8 @@ async function shotshotAndRun() {
   console.log('reverted to snapshot:', snapshotId);
 }
 
+// 可以传一个已经在 venus 有头寸的用户的钱包地址
+// shotshotAndRun('0x4be1c4779ea563f20371dbb689a61a60c3d8bf73')
 shotshotAndRun()
   .then(() => process.exit(0))
   .catch(error => {

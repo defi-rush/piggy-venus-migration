@@ -13,9 +13,9 @@ const PiggyApp = function(userWallet) {
  * Finds a hint for trove.
  * 本地执行超级慢, 估计是 hardhat 内存限制的关系, 还不知道明确的原因, 这个方法直接连 mainnet RPC node 计算
  *
- * @param      {<type>}  bnbColl     The BNB amount (in wei) borrower wants to lock for collateral
- * @param      {<type>}  pusdDebt    PUSD amount (in wei) borrower wants to withdraw
- * @return     {Array}   [upperHint, lowerHint]
+ * @param      {BigNumber}  bnbColl     BNB amount (in wei) borrower wants to lock for collateral
+ * @param      {BigNumber}  pusdDebt    PUSD amount (in wei) borrower wants to withdraw
+ * @return     {Array}      [upperHint, lowerHint]
  */
 PiggyApp.prototype.findHintForTrove = async function(bnbColl, pusdDebt) {
   // return ['0x0000000000000000000000000000000000000000', '0x96D9eBF8c3440b91aD2b51bD5107A495ca0513E5']
@@ -46,8 +46,32 @@ PiggyApp.prototype.findHintForTrove = async function(bnbColl, pusdDebt) {
   console.log('[Piggy] approxHint', approxHint);
   // Use the approximate hint to get the exact upper and lower hints from the deployed SortedTroves contract
   const { 0: upperHint, 1: lowerHint } = await sortedTroves.findInsertPosition(NICR, approxHint, approxHint);
-  console.log('[Piggy] upperHint/lowerHint', upperHint, lowerHint);
+  console.log('[Piggy] upperHint', upperHint);
+  console.log('[Piggy] lowerHint', lowerHint);
   return [upperHint, lowerHint];
+}
+
+/**
+ * bnbColl 和 pusdDebt 都是预估的金额, 用来计算 hint, 在合约里还会重新计算
+ *
+ * @param      {BigNumber}  bnbColl     BNB amount (in wei) borrower wants to lock for collateral
+ * @param      {BigNumber}  pusdDebt    PUSD amount (in wei) borrower wants to withdraw
+ */
+PiggyApp.prototype.startMigrate = async function(bnbColl, pusdDebt) {
+  const { VaultMigration, PiggyReward } = await deployments.all();
+  const vaultMigration = new ethers.Contract(VaultMigration.address, VaultMigration.abi, this.userWallet);
+  const piggyReward = new ethers.Contract(PiggyReward.address, PiggyReward.abi, this.userWallet);
+
+  /* 1. pre-calculate trove params */
+  const maxFee = ethers.utils.parseEther('1').mul(3).div(100); // Slippage protection: 3%
+  const [upperHint, lowerHint] = await this.findHintForTrove(bnbColl, pusdDebt);
+
+  /* 2. flashloan */
+  console.log('[VaultMigration] flashloan starting');
+  const res = await vaultMigration.startMigrate(upperHint, lowerHint).then((tx) => tx.wait());
+  console.log('[VaultMigration] flashloan end');
+  const rewardBalance = await piggyReward.balanceOf(this.userWallet.address)
+  console.log('[VaultMigration] piggy rewards', ethers.utils.formatEther(rewardBalance));
 }
 
 
