@@ -29,29 +29,23 @@ App.prototype.initialize = async function({ publicKey, privateKey }) {
     throw new Error('Ether publicKey or privateKey is required');
   }
   this.piggyApp = new PiggyApp(this.userWallet);
+  this.venusApp = new VenusApp(this.userWallet);
   [
     this.vBNB,
     this.vBUSD,
     this.tokenPUSD,
-    this.dodoStablePool,
-    this.venusComptroller,
-    this.vPriceOracle,
   ] = await Promise.all([
     getContractInstance('vBNB', this.userWallet),
     getContractInstance('vBUSD', this.userWallet),
     getContractInstance('PUSD', this.userWallet),
-    getContractInstance('DODOStablePool', this.userWallet),
-    getContractInstance('VenusComptroller', this.userWallet),
-    getContractInstance('VenusPriceOracle', this.userWallet),
   ]);
 }
 
 App.prototype.prepareVenusPositions = async function() {
   const faucet = new FaucetApp(this.userWallet);
   await faucet.requestBNB(20);
-  const venusApp = new VenusApp(this.userWallet);
-  // await venusApp.initMarketWithExactCR(5, 130);
-  await venusApp.initMarketWithMultipleAssets(
+  // await this.venusApp.initMarketWithExactCR(5, 130);
+  await this.venusApp.initMarketWithMultipleAssets(
     /* 将清空所有头寸 */
     // { 'vBNB': 1200 },  // collaterals
     // { 'vBUSD': 900 },  // debts
@@ -71,42 +65,25 @@ App.prototype.prepareVenusPositions = async function() {
 }
 
 App.prototype.precheck = async function() {
-  const [exchangeRate, vBnbBalance, borrowBalance] = await Promise.all([
-    this.vBNB.exchangeRateStored(),
-    this.vBNB.balanceOf(this.userWallet.address),
-    this.vBUSD.borrowBalanceStored(this.userWallet.address),
-  ]);
-
-  const _1e18 = ethers.utils.parseUnits('1', 18);
-  const bnbBalance = vBnbBalance.mul(exchangeRate).div(_1e18);
+  const {
+    vBnbBalance, borrowBalance, bnbBalance,
+    valueBNB, valueBUSD, liquidity, liquidityToRemove,
+  } = await this.venusApp.getAccountData();
   console.log('[Precheck] bnbBalance', ethers.utils.formatEther(bnbBalance));
   console.log('[Precheck] vBnbBalance', ethers.utils.formatUnits(vBnbBalance, 8));
   console.log('[Precheck] borrowBalance', ethers.utils.formatEther(borrowBalance));
-
   /**
    * 检查一下 liquidityToRemove
    * 合约里 vBNB.transferFrom 在 liquidity 不足的时候会执行失败, 合约里不需要再判断 liquidityToRemove
    * 因为 liquidityToRemove 计算有误差, 这里只是个大致的估算
    */
-  const [,liquidity,] = await this.venusComptroller.getAccountLiquidity(this.userWallet.address);
-  const [priceBNB, priceBUSD] = await Promise.all([
-    this.vPriceOracle.getUnderlyingPrice(this.vBNB.address),
-    this.vPriceOracle.getUnderlyingPrice(this.vBUSD.address),
-  ]);
-  const [,collateralFactorMantissa,] = await this.venusComptroller.markets(this.vBNB.address);
-
-  const valueBNB = bnbBalance.mul(priceBNB).div(_1e18);  // usd value * 1e18
-  const valueBUSD = borrowBalance.mul(priceBUSD).div(_1e18);  // usd value * 1e18
-  const liquidityToRemove = valueBNB.mul(collateralFactorMantissa).div(_1e18).sub(valueBUSD);
-  // console.log(liquidityToRemove.toString(), liquidity.toString());
   if (liquidityToRemove.gt(liquidity)) {
     throw new Error('Liquidity is not enough after migration');
   }
-  // if valueBNB / valueBUSD <= 110 / 100, throw
   if (valueBNB.mul(100).lte(valueBUSD.mul(110))) {
+    // if valueBNB / valueBUSD <= 110 / 100, throw
     throw new Error('Collateral ratio must be greater than 110% for Piggy');
   }
-
   return { bnbBalance, vBnbBalance, borrowBalance };
 }
 
@@ -147,10 +124,7 @@ async function shotshotAndRun(publicKey) {
   /* user wallet for test */
   const { privateKey } = require('../.testaccount');
   const hasVenusPositions = !!publicKey;
-  await app.initialize({
-    // privateKey
-    publicKey,
-  });
+  await app.initialize(publicKey ? { publicKey } : { privateKey });
 
   const snapshotId = await network.provider.send('evm_snapshot');
   console.log('start on snapshot:', snapshotId);
@@ -171,7 +145,7 @@ async function shotshotAndRun(publicKey) {
 }
 
 // 可以传一个已经在 venus 有头寸的用户的钱包地址
-// shotshotAndRun('0xe9504835ac8a68178aaffd3145fd7e4a48683d2a')
+// shotshotAndRun('0x096586843d79f7bf10e95fd4bfcb2bc2a0c44080')
 shotshotAndRun()
   .then(() => process.exit(0))
   .catch(error => {

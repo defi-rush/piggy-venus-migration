@@ -73,6 +73,43 @@ VenusApp.prototype.initMarketWithMultipleAssets = async function(collaterals, de
   console.log(`[Venus] liquidity (available borrows in USD): $${formatEther(liquidity)}`);
 }
 
+VenusApp.prototype.getAccountData = async function() {
+  const [
+    vBNB, vBUSD, comptroller, priceOracle,
+  ] = await Promise.all([
+    // 这里都是只读的, 不需要 userWallet 签名
+    getContractInstance('vBNB', ethers.provider),
+    getContractInstance('vBUSD', ethers.provider),
+    getContractInstance('VenusComptroller', ethers.provider),
+    getContractInstance('VenusPriceOracle', ethers.provider),
+  ]);
+
+  const [exchangeRate, vBnbBalance, borrowBalance] = await Promise.all([
+    vBNB.exchangeRateStored(),
+    vBNB.balanceOf(this.userWallet.address),
+    vBUSD.borrowBalanceStored(this.userWallet.address),
+  ]);
+
+  const _1e18 = ethers.utils.parseUnits('1', 18);
+  const bnbBalance = vBnbBalance.mul(exchangeRate).div(_1e18);
+
+  const [,liquidity,] = await comptroller.getAccountLiquidity(this.userWallet.address);
+  const [priceBNB, priceBUSD] = await Promise.all([
+    priceOracle.getUnderlyingPrice(vBNB.address),
+    priceOracle.getUnderlyingPrice(vBUSD.address),
+  ]);
+  const valueBNB = bnbBalance.mul(priceBNB).div(_1e18);  // usd value * 1e18
+  const valueBUSD = borrowBalance.mul(priceBUSD).div(_1e18);  // usd value * 1e18
+
+  const [,collateralFactorMantissa,] = await comptroller.markets(vBNB.address);
+  const liquidityToRemove = valueBNB.mul(collateralFactorMantissa).div(_1e18).sub(valueBUSD);
+
+  return {
+    vBnbBalance, borrowBalance, bnbBalance,
+    valueBNB, valueBUSD, liquidity, liquidityToRemove,
+  }
+}
+
 
 /**
  * 存入 BNB 并借出 BUSD 以达到一个指定的质押率

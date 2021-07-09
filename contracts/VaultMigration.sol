@@ -175,12 +175,12 @@ contract VaultMigration is IDODOCallee {
          * 检查 Venus 余额
          *  - vBNB 有足够的 allowance
          *  - BNB 和 BUSD 的价值满足 Piggy 的条件 (这只是个大概的估算, 不满足条件的可以提前终止)
+         * vBUSD.borrowBalanceCurrent 和 vBNB.balanceOfUnderlying 分别会执行 vBUSD 和 vBNB 的 accrueInterest
+         * 无需单独先执行 vBNB.accrueInterest() 和 vBUSD.accrueInterest() 了
          */
-        vBNB.accrueInterest();
-        vBUSD.accrueInterest();
-
         VenusLocalVars memory vInfo;
-        vInfo.borrowBalance = vBUSD.borrowBalanceStored(msg.sender);
+        // vInfo.borrowBalance = vBUSD.borrowBalanceStored(msg.sender);
+        vInfo.borrowBalance = vBUSD.borrowBalanceCurrent(msg.sender);
         vInfo.bnbBalance = vBNB.balanceOfUnderlying(msg.sender);
         vInfo.vBnbBalance = vBNB.balanceOf(msg.sender);
         vInfo.priceBNB = vPriceOracle.getUnderlyingPrice(vBNB);
