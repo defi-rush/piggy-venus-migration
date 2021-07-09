@@ -1,5 +1,5 @@
 const { ethers, getNamedAccounts } = require('hardhat');
-const { getContractInstance, ERC20ABI } = require('./contract-factory');
+const { getContractInstance, ERC20ABI, vTokenABI } = require('./contract-factory');
 const { PancakeSwapApp } = require('./pancake');
 
 const { parseEther, formatEther, formatUnits, parseUnits } = ethers.utils;
@@ -74,6 +74,30 @@ VenusApp.prototype.initMarketWithMultipleAssets = async function(collaterals, de
 }
 
 VenusApp.prototype.getAccountData = async function() {
+  const [ comptroller, priceOracle ] = await Promise.all([
+    // 这里都是只读的, 不需要 userWallet 签名
+    getContractInstance('VenusComptroller', ethers.provider),
+    getContractInstance('VenusPriceOracle', ethers.provider),
+  ]);
+  const _1e18 = parseUnits('1', 18);
+  const [,liquidity,] = await comptroller.getAccountLiquidity(this.userWallet.address);
+  let totalBorrows = ethers.constants.Zero;
+  // vTokens: 用户 enterMarkets 的资产
+  const vTokens = await comptroller.getAssetsIn(this.userWallet.address);
+  const _promises = vTokens.map(async (vTokenAddress) => {
+    const vToken = new ethers.Contract(vTokenAddress, vTokenABI, ethers.provider);
+    const borrowBalance = await vToken.borrowBalanceStored(this.userWallet.address);
+    const underlyingPrice = await priceOracle.getUnderlyingPrice(vTokenAddress);
+    const borrowValue = borrowBalance.mul(underlyingPrice).div(_1e18);  // usd value * 1e18
+    totalBorrows = totalBorrows.add(borrowValue);
+  });
+  await Promise.all(_promises);
+  const availableCredit = totalBorrows.add(liquidity);
+  return { liquidity, totalBorrows, availableCredit };
+}
+
+
+VenusApp.prototype.getMigrationData = async function() {
   const [
     vBNB, vBUSD, comptroller, priceOracle,
   ] = await Promise.all([
@@ -83,36 +107,30 @@ VenusApp.prototype.getAccountData = async function() {
     getContractInstance('VenusComptroller', ethers.provider),
     getContractInstance('VenusPriceOracle', ethers.provider),
   ]);
-
-  const [exchangeRate, vBnbBalance, borrowBalance] = await Promise.all([
+  const [exchangeRate, vBnbBalance, busdBorrowBalance] = await Promise.all([
     vBNB.exchangeRateStored(),
     vBNB.balanceOf(this.userWallet.address),
     vBUSD.borrowBalanceStored(this.userWallet.address),
   ]);
-
-  const _1e18 = ethers.utils.parseUnits('1', 18);
+  const _1e18 = parseUnits('1', 18);
   const bnbBalance = vBnbBalance.mul(exchangeRate).div(_1e18);
-
-  const [,liquidity,] = await comptroller.getAccountLiquidity(this.userWallet.address);
   const [priceBNB, priceBUSD] = await Promise.all([
     priceOracle.getUnderlyingPrice(vBNB.address),
     priceOracle.getUnderlyingPrice(vBUSD.address),
   ]);
-  const valueBNB = bnbBalance.mul(priceBNB).div(_1e18);  // usd value * 1e18
-  const valueBUSD = borrowBalance.mul(priceBUSD).div(_1e18);  // usd value * 1e18
-
+  const bnbValue = bnbBalance.mul(priceBNB).div(_1e18);  // usd value * 1e18
+  const busdValue = busdBorrowBalance.mul(priceBUSD).div(_1e18);  // usd value * 1e18
   const [,collateralFactorMantissa,] = await comptroller.markets(vBNB.address);
-  const liquidityToRemove = valueBNB.mul(collateralFactorMantissa).div(_1e18).sub(valueBUSD);
-
+  const liquidityToRemove = bnbValue.mul(collateralFactorMantissa).div(_1e18).sub(busdValue);
   return {
-    vBnbBalance, borrowBalance, bnbBalance,
-    valueBNB, valueBUSD, liquidity, liquidityToRemove,
+    vBnbBalance, busdBorrowBalance, bnbBalance,
+    bnbValue, busdValue, liquidityToRemove,
   }
 }
 
 
 /**
- * 存入 BNB 并借出 BUSD 以达到一个指定的质押率
+ * 存入 BNB 并借出 BUSD 以达到一个指定的质押率, 这个方法没有用到
  *
  * @param      {Number}  depositEther  The amount of BNB (in ether) to deposit
  * @param      {Number}  targetCR    The collateralization ratio (in percent), e.g. 125 means 125%

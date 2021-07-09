@@ -15,6 +15,7 @@ const vTokenABI = [
   'function exchangeRateStored() view returns (uint)',
   'function balanceOf(address account) view returns (uint)',
   'function borrowBalanceStored(address account) view returns (uint)',
+  'function getAccountSnapshot(address account) view returns (uint, uint, uint, uint)',
   /* 下面几项要是 write, 因为计算前会先更新利息 */
   'function balanceOfUnderlying(address account) returns (uint)',
   'function accrueInterest() returns (uint)',

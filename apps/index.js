@@ -41,63 +41,87 @@ App.prototype.initialize = async function({ publicKey, privateKey }) {
   ]);
 }
 
+/**
+ * 给测试账户充点钱并且加一些 Venus 头寸
+ */
 App.prototype.prepareVenusPositions = async function() {
   const faucet = new FaucetApp(this.userWallet);
   await faucet.requestBNB(20);
-  // await this.venusApp.initMarketWithExactCR(5, 130);
   await this.venusApp.initMarketWithMultipleAssets(
     /* 将清空所有头寸 */
     // { 'vBNB': 1200 },  // collaterals
     // { 'vBUSD': 900 },  // debts
-
     /* Piggy 最低质押率不满足 */
     // { 'vBNB': 1500, 'vETH': 500 },  // collaterals
     // { 'vBUSD': 1400, 'vUSDC': 100 },  // debts
-
     /* 剩余抵押率不足 */
     // { 'vBNB': 1200, 'vETH': 60 },  // collaterals
     // { 'vBUSD': 900, 'vUSDC': 100 },  // debts
-
     /* 剩余抵押率足够 */
     { 'vBNB': 1000, 'vETH': 300 },  // collaterals
     { 'vBUSD': 800, 'vUSDC': 200 },  // debts
   );
 }
 
+/**
+ * 检查迁移前后 Venus 的健康状况, 以及迁移金额是否满足 Piggy 要求, 计算有误差, 这里只是估算
+ * -
+ * availableCredit: 总的借款额度 (USD)
+ * totalBorrows: 所有债务的总价值, 即已借款金额 (USD)
+ * liquidity = availableCredit - totalBorrows: 剩余可借款额度 (USD)
+ * Venus 用 borrowLimitUsed = totalBorrows / availableCredit 来衡量健康度
+ * Venus 的 collateralFactor 平均在 1.25 的样子
+ * 为了达到 150% 的 collateral ratio, 需要 borrowLimitUsed 小于 5/6 (80%)
+ * 也就是 liquidity / totalBorrows > 0.2
+ * -
+ * 合约里不再需要判断, vBNB.transferFrom 在 liquidity 不足的时候会执行失败
+ */
 App.prototype.precheck = async function() {
   const {
-    vBnbBalance, borrowBalance, bnbBalance,
-    valueBNB, valueBUSD, liquidity, liquidityToRemove,
+    liquidity, totalBorrows, availableCredit
   } = await this.venusApp.getAccountData();
+  const usedPercent = totalBorrows.mul(100).div(availableCredit);
+  console.log('[Precheck] availableCredit', ethers.utils.formatEther(availableCredit));
+  console.log('[Precheck] totalBorrows', ethers.utils.formatEther(totalBorrows));
+  console.log('[Precheck] borrowLimitUsed before migration', `${usedPercent}%`);
+
+  const {
+    vBnbBalance, busdBorrowBalance, bnbBalance,
+    bnbValue, busdValue, liquidityToRemove,
+  } = await this.venusApp.getMigrationData();
   console.log('[Precheck] bnbBalance', ethers.utils.formatEther(bnbBalance));
   console.log('[Precheck] vBnbBalance', ethers.utils.formatUnits(vBnbBalance, 8));
-  console.log('[Precheck] borrowBalance', ethers.utils.formatEther(borrowBalance));
-  /**
-   * 检查一下 liquidityToRemove
-   * 合约里 vBNB.transferFrom 在 liquidity 不足的时候会执行失败, 合约里不需要再判断 liquidityToRemove
-   * 因为 liquidityToRemove 计算有误差, 这里只是个大致的估算
-   */
+  console.log('[Precheck] busdBorrowBalance', ethers.utils.formatEther(busdBorrowBalance));
   if (liquidityToRemove.gt(liquidity)) {
     throw new Error('Liquidity is not enough after migration');
   }
-  if (valueBNB.mul(100).lte(valueBUSD.mul(110))) {
-    // if valueBNB / valueBUSD <= 110 / 100, throw
+  const liquidityNew = liquidity.sub(liquidityToRemove);
+  const totalBorrowsNew = totalBorrows.sub(busdValue);
+  const availableCreditNew = totalBorrowsNew.add(liquidityNew);
+  const usedPercentNew = totalBorrowsNew.mul(100).div(availableCreditNew);
+  console.log('[Precheck] borrowLimitUsed after migration', `${usedPercentNew}%`);
+
+  /**
+   * for Piggy, if bnbValue / busdValue <= 110 / 100, throw
+   */
+  if (bnbValue.mul(100).lte(busdValue.mul(110))) {
     throw new Error('Collateral ratio must be greater than 110% for Piggy');
   }
-  return { bnbBalance, vBnbBalance, borrowBalance };
+
+  return { bnbBalance, vBnbBalance, busdBorrowBalance };
 }
 
 App.prototype.execute = async function({
-  bnbBalance, vBnbBalance, borrowBalance
+  bnbBalance, vBnbBalance, busdBorrowBalance
 }) {
   /**
    * 1. 预估一下 bnb 和 pusd 的数量
    * busd 加上 flashloan 的手续费 0.3% ~ 1%
    * TODO, flashloan 的手续费还要确认下, 要用 querySellQuote 算出 pusdDebt
-   * uint256 pusdDebt = venusVars.borrowBalance * 101 / 100;
+   * uint256 pusdDebt = venusVars.busdBorrowBalance * 101 / 100;
    */
   const bnbColl = bnbBalance;
-  const pusdDebt = borrowBalance.mul(101).div(100);
+  const pusdDebt = busdBorrowBalance.mul(101).div(100);
 
   /* 2. approve to vault migration  */
   const VaultMigration = await deployments.get('VaultMigration');
