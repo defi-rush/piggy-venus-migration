@@ -35,6 +35,7 @@ contract VaultMigration is IDODOCallee {
         uint256 vBnbBalance;
         uint256 bnbBalance;
         uint256 busdBorrowBalance;
+        uint256 busdRepay;
         uint256 priceBNB;
         uint256 priceBUSD;
     }
@@ -121,22 +122,22 @@ contract VaultMigration is IDODOCallee {
         (
             address borrower,  // 用户
             uint256 vBnbBalance,
-            uint256 busdBorrowBalance,
+            uint256 busdRepay,
             uint256 bnbColl,
             uint256 pusdDebt,
             address upperHint,
             address lowerHint
         ) = abi.decode(data, (address, uint256, uint256, uint256, uint256, address, address));
-        require(busdBorrowBalance == baseAmount, "baseAmount not equal to busdBorrowBalance");
+        require(busdRepay == baseAmount, "baseAmount not equal to busdRepay");
 
         /**
          * 1. clear venus positions
-         *  - 合约下的 BUSD 余额 (baseAmount) 等于 busdBorrowBalance
-         *  - 直接使用 2**256-1 或者 type(uint256).max 确保 repay the full amount
-         *  - 因为在同一个区块中, 如果没问题, busdBorrowBalance 就是 full amount
+         *  - 合约下的 BUSD 余额 (baseAmount) 等于 busdRepay
          *  - 如果转出 vBNB 以后导致抵押物不足, transfer 不会发生, 并且 transferFrom 返回 false
+         *  - repayBorrowBehalf 不要 repay full amount (2**256-1), 因为 busdRepay 不一定等于全部借款数量
          */
-        vBUSD.repayBorrowBehalf(borrower, 2**256-1);
+        vBUSD.repayBorrowBehalf(borrower, busdRepay);
+        // vBUSD.repayBorrowBehalf(borrower, 2**256-1);
         bool vBNBTransfered = vBNB.transferFrom(borrower, address(this), vBnbBalance);
         require(vBNBTransfered, "failed transfer vBNB VaultMigration");
         vBNB.redeem(vBnbBalance);
@@ -185,32 +186,39 @@ contract VaultMigration is IDODOCallee {
         vInfo.vBnbBalance = vBNB.balanceOf(msg.sender);
         vInfo.priceBNB = vPriceOracle.getUnderlyingPrice(vBNB);
         vInfo.priceBUSD = vPriceOracle.getUnderlyingPrice(vBUSD);
+        require(vInfo.vBnbBalance > 0 && vInfo.busdBorrowBalance > 0, "no BNB or BUSD positions");
         require(vBNB.allowance(msg.sender, address(this)) >= vInfo.vBnbBalance, "vBNB allowance is not enough");
-        // vInfo.bnbBalance * vInfo.priceBNB / (vInfo.busdBorrowBalance * vInfo.priceBUSD) > 110 / 100,
-        require(
-            vInfo.bnbBalance * vInfo.priceBNB * 100 > (vInfo.busdBorrowBalance * vInfo.priceBUSD) * 110,
-            "Collateral ratio must be greater than 110% for Piggy");
+        // require(
+        //     vInfo.bnbBalance * vInfo.priceBNB * 100 > vInfo.busdBorrowBalance * vInfo.priceBUSD * 110,
+        //     "Collateral ratio must be greater than 110% for Piggy");
+        // (vInfo.bnbBalance * vInfo.priceBNB) / (vInfo.busdBorrowBalance * vInfo.priceBUSD) > 110 / 100,
+        if (vInfo.bnbBalance * vInfo.priceBNB * 100 > (vInfo.busdBorrowBalance * vInfo.priceBUSD) * 110) {
+            vInfo.busdRepay = vInfo.busdBorrowBalance;
+        } else {
+            // 如果不满足情况, 直接按照 150% 的质押率, 减少 busdRepay
+            vInfo.busdRepay = vInfo.bnbBalance * vInfo.priceBNB * 100 / (vInfo.priceBUSD * 150);
+        }
 
         /**
          * 计算 Piggy 金额
          * bnbColl:  从 Venus 取出并且全部放进 Piggy 的 BNB 数量;
          *           在同一个区块里, bnbColl 始终等于 vBNB.balanceOfUnderlying
-         * pusdDebt: 从 Piggy 借出的 PUSD 数量, 约等于 busdBorrowBalance (BUSD) 加上 0.3% 的 flashloan 手续费
+         * pusdDebt: 从 Piggy 借出的 PUSD 数量, 约等于 busdRepay (BUSD) 加上 0.3% 的 flashloan 手续费
          */
         uint256 bnbColl = vInfo.bnbBalance;
-        uint256 pusdDebt = vInfo.busdBorrowBalance * 101 / 100;  // 加上 1%
+        uint256 pusdDebt = vInfo.busdRepay * 101 / 100;  // 加上 1%
         (uint256 receiveBaseAmount, , ,) = dodoStablePool.querySellQuote(address(this), pusdDebt);
-        assert(vInfo.busdBorrowBalance <= receiveBaseAmount);
+        assert(vInfo.busdRepay <= receiveBaseAmount);
         require(tokenPUSD.allowance(msg.sender, address(this)) >= pusdDebt, "PUSD allowance is not enough");
 
         /**
          * FlashLoan
-         *   baseAmount: busdBorrowBalance
+         *   baseAmount: busdRepay
          *   quoteAmount: 0
          */
         bytes memory data = abi.encode(
-            msg.sender, vInfo.vBnbBalance, vInfo.busdBorrowBalance, bnbColl, pusdDebt, _upperHint, _lowerHint);
-        dodoStablePool.flashLoan(vInfo.busdBorrowBalance, 0, address(this), data);
+            msg.sender, vInfo.vBnbBalance, vInfo.busdRepay, bnbColl, pusdDebt, _upperHint, _lowerHint);
+        dodoStablePool.flashLoan(vInfo.busdRepay, 0, address(this), data);
 
         /**
          * Final check

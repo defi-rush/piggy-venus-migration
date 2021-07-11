@@ -114,17 +114,17 @@ VenusApp.prototype.getMigrationData = async function() {
   ]);
   const _1e18 = parseUnits('1', 18);
   const bnbBalance = vBnbBalance.mul(exchangeRate).div(_1e18);
-  const [priceBNB, priceBUSD] = await Promise.all([
+  const [bnbPrice, busdPrice] = await Promise.all([
     priceOracle.getUnderlyingPrice(vBNB.address),
     priceOracle.getUnderlyingPrice(vBUSD.address),
   ]);
-  const bnbValue = bnbBalance.mul(priceBNB).div(_1e18);  // usd value * 1e18
-  const busdValue = busdBorrowBalance.mul(priceBUSD).div(_1e18);  // usd value * 1e18
+  const bnbValue = bnbBalance.mul(bnbPrice).div(_1e18);  // usd value * 1e18
+  const busdValue = busdBorrowBalance.mul(busdPrice).div(_1e18);  // usd value * 1e18
   const [,collateralFactorMantissa,] = await comptroller.markets(vBNB.address);
   const liquidityToRemove = bnbValue.mul(collateralFactorMantissa).div(_1e18).sub(busdValue);
   return {
     vBnbBalance, busdBorrowBalance, bnbBalance,
-    bnbValue, busdValue, liquidityToRemove,
+    bnbPrice, busdPrice, liquidityToRemove,
   }
 }
 

@@ -87,41 +87,46 @@ App.prototype.precheck = async function() {
 
   const {
     vBnbBalance, busdBorrowBalance, bnbBalance,
-    bnbValue, busdValue, liquidityToRemove,
+    bnbPrice, busdPrice, liquidityToRemove,
   } = await this.venusApp.getMigrationData();
   console.log('[Precheck] bnbBalance', ethers.utils.formatEther(bnbBalance));
   console.log('[Precheck] vBnbBalance', ethers.utils.formatUnits(vBnbBalance, 8));
   console.log('[Precheck] busdBorrowBalance', ethers.utils.formatEther(busdBorrowBalance));
+  if (bnbBalance.lte(0) || busdBorrowBalance.lte(0)) {
+    throw new Error('No BNB or BUSD positions');
+  }
   if (liquidityToRemove.gt(liquidity)) {
     throw new Error('Liquidity is not enough after migration');
   }
+  let busdRepay;
+  /* Piggy requires (bnbBalance * bnbPrice) / (busdBorrowBalance * busdPrice) > 110 / 100  */
+  if (bnbBalance.mul(bnbPrice).mul(100).gt(busdBorrowBalance.mul(busdPrice).mul(110))) {
+    busdRepay = busdBorrowBalance;
+  } else {
+    // throw new Error('Collateral ratio must be greater than 110% for Piggy');
+    busdRepay = bnbBalance.mul(bnbPrice).mul(100).div(busdPrice.mul(150));
+  }
+  console.log('[Precheck] busdRepay', ethers.utils.formatEther(busdRepay));
+  const _1e18 = ethers.utils.parseUnits('1', 18);
   const liquidityNew = liquidity.sub(liquidityToRemove);
-  const totalBorrowsNew = totalBorrows.sub(busdValue);
+  const totalBorrowsNew = totalBorrows.sub(busdRepay.mul(busdPrice).div(_1e18));
   const availableCreditNew = totalBorrowsNew.add(liquidityNew);
   const usedPercentNew = totalBorrowsNew.mul(100).div(availableCreditNew);
   console.log('[Precheck] borrowLimitUsed after migration', `${usedPercentNew}%`);
-
-  /**
-   * for Piggy, if bnbValue / busdValue <= 110 / 100, throw
-   */
-  if (bnbValue.mul(100).lte(busdValue.mul(110))) {
-    throw new Error('Collateral ratio must be greater than 110% for Piggy');
-  }
-
-  return { bnbBalance, vBnbBalance, busdBorrowBalance };
+  return { bnbBalance, vBnbBalance, busdRepay };
 }
 
 App.prototype.execute = async function({
-  bnbBalance, vBnbBalance, busdBorrowBalance
+  bnbBalance, vBnbBalance, busdRepay
 }) {
   /**
    * 1. 预估一下 bnb 和 pusd 的数量
    * busd 加上 flashloan 的手续费 0.3% ~ 1%
    * TODO, flashloan 的手续费还要确认下, 要用 querySellQuote 算出 pusdDebt
-   * uint256 pusdDebt = venusVars.busdBorrowBalance * 101 / 100;
+   * uint256 pusdDebt = busdRepay * 101 / 100;
    */
   const bnbColl = bnbBalance;
-  const pusdDebt = busdBorrowBalance.mul(101).div(100);
+  const pusdDebt = busdRepay.mul(101).div(100);
 
   /* 2. approve to vault migration  */
   const VaultMigration = await deployments.get('VaultMigration');
@@ -177,7 +182,7 @@ async function listUsersAndRun() {
 }
 
 // 可以传一个已经在 venus 有头寸的用户的钱包地址
-// shotshotAndRun('0x096586843d79f7bf10e95fd4bfcb2bc2a0c44080')
+// shotshotAndRun('0xD11FBe979Bc85f3c9350571528f50FF6C236cC5C')
 // shotshotAndRun()
 listUsersAndRun()
   .then(() => process.exit(0))
