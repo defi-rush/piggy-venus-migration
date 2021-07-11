@@ -1,0 +1,1039 @@
+---------- 0x3a80ecDDb1A5EC7C386Ce8035E561A0895b6EC9c ----------
+impersonate account 0x3a80ecDDb1A5EC7C386Ce8035E561A0895b6EC9c, balance 0.028524437484990749
+start on snapshot: 0x113
+FetchError: request to http://127.0.0.1:8546/ failed, reason: socket hang up
+    at ClientRequest.<anonymous> (/Users/dxdspirits/workspace/piggy-venus-migration/node_modules/node-fetch/lib/index.js:1461:11)
+    at ClientRequest.emit (events.js:223:5)
+    at Socket.socketOnEnd (_http_client.js:440:9)
+    at Socket.emit (events.js:228:7)
+    at endReadableNT (_stream_readable.js:1185:12)
+    at processTicksAndRejections (internal/process/task_queues.js:81:21) {
+  message: 'request to http://127.0.0.1:8546/ failed, reason: socket hang up',
+  type: 'system',
+  errno: 'ECONNRESET',
+  code: 'ECONNRESET'
+}
+reverted to snapshot: 0x113
+---------- 0x8Bb394248Def97dCDE83d4c1d5A91C3620fE3063 ----------
+impersonate account 0x8Bb394248Def97dCDE83d4c1d5A91C3620fE3063, balance 0.184833674268182746
+start on snapshot: 0x114
+[Precheck] availableCredit 7039.575342666925193358
+[Precheck] totalBorrows 5028.893048274810866402
+[Precheck] borrowLimitUsed before migration 71%
+[Precheck] bnbBalance 0.0
+[Precheck] vBnbBalance 0.0
+[Precheck] busdBorrowBalance 1500.067147333675307437
+Error: No BNB or BUSD positions
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:96:11)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x114
+---------- 0x2B78ED6f2ff1B67e70B78A58389b3D4972944292 ----------
+impersonate account 0x2B78ED6f2ff1B67e70B78A58389b3D4972944292, balance 0.582757863229938281
+start on snapshot: 0x115
+[Precheck] availableCredit 3031.00066733745001577
+[Precheck] totalBorrows 1000.911418813282107021
+[Precheck] borrowLimitUsed before migration 33%
+[Precheck] bnbBalance 5.183919907439538112
+[Precheck] vBnbBalance 254.17783585
+[Precheck] busdBorrowBalance 200.008379634452269974
+[Precheck] busdRepay 200.008379634452269974
+[Precheck] borrowLimitUsed after migration 46%
+[Execute] bnbColl 5.183919907439538112
+[Execute] pusdDebt 202.008463430796792673
+[Piggy] expectedFee 1.033152907400498035
+[Piggy] numTroves 101
+[Piggy] approxHint 0x7D1589685F02502e628E60394D21AAF835EE25EE
+[Piggy] upperHint 0x7D1589685F02502e628E60394D21AAF835EE25EE
+[Piggy] lowerHint 0xa193e4042c7c14bDD64d164e092eb70a81E19eB5
+[VaultMigration] flashloan starting
+[VaultMigration] flashloan end
+[VaultMigration] piggy rewards 100.0
+reverted to snapshot: 0x115
+---------- 0x89CA1D82b4DfDe53617Fc9D1C36063fE8D517744 ----------
+impersonate account 0x89CA1D82b4DfDe53617Fc9D1C36063fE8D517744, balance 0.442112058087149865
+start on snapshot: 0x12f
+[Precheck] availableCredit 314456.514206673948609204
+[Precheck] totalBorrows 296562.760089670194966309
+[Precheck] borrowLimitUsed before migration 94%
+[Precheck] bnbBalance 0.0
+[Precheck] vBnbBalance 0.0
+[Precheck] busdBorrowBalance 274555.677150732719242112
+Error: No BNB or BUSD positions
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:96:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x12f
+---------- 0xEc877F43438A090eFe2aE2b0311953b08A4BF1E5 ----------
+impersonate account 0xEc877F43438A090eFe2aE2b0311953b08A4BF1E5, balance 0.120741164727059686
+start on snapshot: 0x130
+[Precheck] availableCredit 41987.883285245638582232
+[Precheck] totalBorrows 13065.602154569683852897
+[Precheck] borrowLimitUsed before migration 31%
+[Precheck] bnbBalance 0.0
+[Precheck] vBnbBalance 0.0
+[Precheck] busdBorrowBalance 13001.201848459038008162
+Error: No BNB or BUSD positions
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:96:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x130
+---------- 0x7ae34a0eD41205022abD24fCB38EEdF41679E95B ----------
+impersonate account 0x7ae34a0eD41205022abD24fCB38EEdF41679E95B, balance 0.718128030825945117
+start on snapshot: 0x131
+FetchError: request to http://127.0.0.1:8546/ failed, reason: socket hang up
+    at ClientRequest.<anonymous> (/Users/dxdspirits/workspace/piggy-venus-migration/node_modules/node-fetch/lib/index.js:1461:11)
+    at ClientRequest.emit (events.js:223:5)
+    at Socket.socketOnEnd (_http_client.js:440:9)
+    at Socket.emit (events.js:228:7)
+    at endReadableNT (_stream_readable.js:1185:12)
+    at processTicksAndRejections (internal/process/task_queues.js:81:21) {
+  message: 'request to http://127.0.0.1:8546/ failed, reason: socket hang up',
+  type: 'system',
+  errno: 'ECONNRESET',
+  code: 'ECONNRESET'
+}
+reverted to snapshot: 0x131
+---------- 0xaEF5Ab1e52104d46160c0b3157a4d7E202f2A5B6 ----------
+impersonate account 0xaEF5Ab1e52104d46160c0b3157a4d7E202f2A5B6, balance 0.887276362201866577
+start on snapshot: 0x132
+[Precheck] availableCredit 72876.213712427548988321
+[Precheck] totalBorrows 39528.878073069522689125
+[Precheck] borrowLimitUsed before migration 54%
+[Precheck] bnbBalance 0.0
+[Precheck] vBnbBalance 0.0
+[Precheck] busdBorrowBalance 7000.72756421749202335
+Error: No BNB or BUSD positions
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:96:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x132
+---------- 0x33938367d040A7FEC3f33e331D51396675d98b64 ----------
+impersonate account 0x33938367d040A7FEC3f33e331D51396675d98b64, balance 0.349368914030877025
+start on snapshot: 0x133
+[Precheck] availableCredit 20372.247387469657849964
+[Precheck] totalBorrows 14854.463188783673449766
+[Precheck] borrowLimitUsed before migration 72%
+[Precheck] bnbBalance 81.265313227508552778
+[Precheck] vBnbBalance 3984.59887781
+[Precheck] busdBorrowBalance 12853.587822428583978555
+Error: Liquidity is not enough after migration
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:99:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x133
+---------- 0xD11FBe979Bc85f3c9350571528f50FF6C236cC5C ----------
+impersonate account 0xD11FBe979Bc85f3c9350571528f50FF6C236cC5C, balance 0.128277926594304089
+start on snapshot: 0x134
+[Precheck] availableCredit 1568.643108996636769646
+[Precheck] totalBorrows 1078.26043003930211118
+[Precheck] borrowLimitUsed before migration 68%
+[Precheck] bnbBalance 1.054861396769377982
+[Precheck] vBnbBalance 51.72193856
+[Precheck] busdBorrowBalance 892.890640158608695263
+[Precheck] busdRepay 220.480096743423589944
+[Precheck] borrowLimitUsed after migration 43%
+[Execute] bnbColl 1.054861396769377982
+[Execute] pusdDebt 222.684897710857825843
+[Piggy] expectedFee 1.138753815721181802
+[Piggy] numTroves 101
+[Piggy] approxHint 0x289EB82D20142eC3019319677fB3fccc206Faf04
+[Piggy] upperHint 0x10a2DFb788a57587E6deAd219fb2829B8eAd9D7b
+[Piggy] lowerHint 0x289EB82D20142eC3019319677fB3fccc206Faf04
+[VaultMigration] flashloan starting
+[VaultMigration] flashloan end
+[VaultMigration] piggy rewards 100.0
+reverted to snapshot: 0x134
+---------- 0xD41e5C84141280f31b6e06247397089b62432Ed3 ----------
+impersonate account 0xD41e5C84141280f31b6e06247397089b62432Ed3, balance 0.041617139757690189
+start on snapshot: 0x14e
+[Precheck] availableCredit 9306.45133613917201495
+[Precheck] totalBorrows 3744.183993882143184556
+[Precheck] borrowLimitUsed before migration 40%
+[Precheck] bnbBalance 2.000079949785458389
+[Precheck] vBnbBalance 98.06787185
+[Precheck] busdBorrowBalance 2766.139725566831828426
+[Precheck] busdRepay 418.043377237824609412
+[Precheck] borrowLimitUsed after migration 29%
+[Execute] bnbColl 2.000079949785458389
+[Execute] pusdDebt 422.223811010202855506
+[Piggy] expectedFee 2.1590064617428488
+[Piggy] numTroves 101
+[Piggy] approxHint 0x10a2DFb788a57587E6deAd219fb2829B8eAd9D7b
+[Piggy] upperHint 0x10a2DFb788a57587E6deAd219fb2829B8eAd9D7b
+[Piggy] lowerHint 0x289EB82D20142eC3019319677fB3fccc206Faf04
+[VaultMigration] flashloan starting
+[VaultMigration] flashloan end
+[VaultMigration] piggy rewards 100.0
+reverted to snapshot: 0x14e
+---------- 0xA8197aC25c40874C75B691612d46aB9BFc85958C ----------
+impersonate account 0xA8197aC25c40874C75B691612d46aB9BFc85958C, balance 0.080053646923659475
+start on snapshot: 0x168
+[Precheck] availableCredit 8949.714465582844418726
+[Precheck] totalBorrows 7318.496827489446279649
+[Precheck] borrowLimitUsed before migration 81%
+[Precheck] bnbBalance 0.0
+[Precheck] vBnbBalance 0.0
+[Precheck] busdBorrowBalance 6313.041878726647092638
+Error: No BNB or BUSD positions
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:96:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x168
+---------- 0x0f1c9578D0cFDe41968AD004329a8A0Be91Bfb48 ----------
+impersonate account 0x0f1c9578D0cFDe41968AD004329a8A0Be91Bfb48, balance 0.026580396445061046
+start on snapshot: 0x169
+[Precheck] availableCredit 804.771772891438989825
+[Precheck] totalBorrows 400.011897180416728184
+[Precheck] borrowLimitUsed before migration 49%
+[Precheck] bnbBalance 3.210128983477410172
+[Precheck] vBnbBalance 157.39896688
+[Precheck] busdBorrowBalance 400.011897180416728184
+Error: Liquidity is not enough after migration
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:99:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x169
+---------- 0x1332Cd9dbcc0d96B384e2fdFB381AC3Ae2E602a1 ----------
+impersonate account 0x1332Cd9dbcc0d96B384e2fdFB381AC3Ae2E602a1, balance 0.077546208037635842
+start on snapshot: 0x16a
+[Precheck] availableCredit 27105.211615802101383189
+[Precheck] totalBorrows 2000.07692691584093998
+[Precheck] borrowLimitUsed before migration 7%
+[Precheck] bnbBalance 0.0
+[Precheck] vBnbBalance 0.0
+[Precheck] busdBorrowBalance 2000.072228216982714168
+Error: No BNB or BUSD positions
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:96:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x16a
+---------- 0xf73A7A6Db3Da4f26F2296a48F98a378bD2154fcF ----------
+impersonate account 0xf73A7A6Db3Da4f26F2296a48F98a378bD2154fcF, balance 0.285542495276983593
+start on snapshot: 0x16b
+[Precheck] availableCredit 138918.781387805191027267
+[Precheck] totalBorrows 75697.216952743844610024
+[Precheck] borrowLimitUsed before migration 54%
+[Precheck] bnbBalance 449.500946850435345931
+[Precheck] vBnbBalance 22039.91958267
+[Precheck] busdBorrowBalance 53870.307001106296468721
+[Precheck] busdRepay 53870.307001106296468721
+[Precheck] borrowLimitUsed after migration 83%
+[Execute] bnbColl 449.500946850435345931
+[Execute] pusdDebt 54409.010071117359433408
+[Piggy] expectedFee 278.204093229537686488
+[Piggy] numTroves 101
+[Piggy] approxHint 0x52F9a67Fd05AdCb0B5480Bf8FEb944aA588316ED
+[Piggy] upperHint 0x281058Cc98e8c85D078585eDB508898667AC4043
+[Piggy] lowerHint 0x52F9a67Fd05AdCb0B5480Bf8FEb944aA588316ED
+[VaultMigration] flashloan starting
+[VaultMigration] flashloan end
+[VaultMigration] piggy rewards 100.0
+reverted to snapshot: 0x16b
+---------- 0xC31cf50C3559329ed83D87f09af3884E935f2873 ----------
+impersonate account 0xC31cf50C3559329ed83D87f09af3884E935f2873, balance 0.0
+start on snapshot: 0x185
+[Precheck] availableCredit 429831.257369404458148335
+[Precheck] totalBorrows 310217.31150544933851746
+[Precheck] borrowLimitUsed before migration 72%
+[Precheck] bnbBalance 0.0
+[Precheck] vBnbBalance 0.0
+[Precheck] busdBorrowBalance 310217.31150544933851746
+Error: No BNB or BUSD positions
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:96:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x185
+---------- 0xC31cf50C3559329ed83D87f09af3884E935f2873 ----------
+impersonate account 0xC31cf50C3559329ed83D87f09af3884E935f2873, balance 0.0
+start on snapshot: 0x186
+[Precheck] availableCredit 429831.257369404458148335
+[Precheck] totalBorrows 310217.31150544933851746
+[Precheck] borrowLimitUsed before migration 72%
+[Precheck] bnbBalance 0.0
+[Precheck] vBnbBalance 0.0
+[Precheck] busdBorrowBalance 310217.31150544933851746
+Error: No BNB or BUSD positions
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:96:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x186
+---------- 0xC31cf50C3559329ed83D87f09af3884E935f2873 ----------
+impersonate account 0xC31cf50C3559329ed83D87f09af3884E935f2873, balance 0.0
+start on snapshot: 0x187
+[Precheck] availableCredit 429831.257369404458148335
+[Precheck] totalBorrows 310217.31150544933851746
+[Precheck] borrowLimitUsed before migration 72%
+[Precheck] bnbBalance 0.0
+[Precheck] vBnbBalance 0.0
+[Precheck] busdBorrowBalance 310217.31150544933851746
+Error: No BNB or BUSD positions
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:96:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x187
+---------- 0xFC4e1bF775F829D664795B62b933962b5421326E ----------
+impersonate account 0xFC4e1bF775F829D664795B62b933962b5421326E, balance 0.164518156760672809
+start on snapshot: 0x188
+[Precheck] availableCredit 8518.512002733348546655
+[Precheck] totalBorrows 7016.225817652895789126
+[Precheck] borrowLimitUsed before migration 82%
+[Precheck] bnbBalance 33.828560455937988837
+[Precheck] vBnbBalance 1658.68116023
+[Precheck] busdBorrowBalance 7016.225711515084586104
+[Precheck] busdRepay 7016.225711515084586104
+[Precheck] borrowLimitUsed after migration 0%
+[Execute] bnbColl 33.828560455937988837
+[Execute] pusdDebt 7086.387968630235431965
+[Piggy] expectedFee 36.232568506245795681
+[Piggy] numTroves 101
+[Piggy] approxHint 0x10a2DFb788a57587E6deAd219fb2829B8eAd9D7b
+[Piggy] upperHint 0x10a2DFb788a57587E6deAd219fb2829B8eAd9D7b
+[Piggy] lowerHint 0x289EB82D20142eC3019319677fB3fccc206Faf04
+[VaultMigration] flashloan starting
+[VaultMigration] flashloan end
+[VaultMigration] piggy rewards 100.0
+reverted to snapshot: 0x188
+---------- 0x56A55Fd1C3284B14b475206e320D4FEcb1596A90 ----------
+impersonate account 0x56A55Fd1C3284B14b475206e320D4FEcb1596A90, balance 0.319295967995286628
+start on snapshot: 0x1a2
+[Precheck] availableCredit 1670.704602680157104924
+[Precheck] totalBorrows 1320.044568551855146373
+[Precheck] borrowLimitUsed before migration 79%
+[Precheck] bnbBalance 0.0
+[Precheck] vBnbBalance 0.0
+[Precheck] busdBorrowBalance 1320.044568551855146373
+Error: No BNB or BUSD positions
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:96:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x1a2
+---------- 0xf61eF09B49f1d8f6bA11686f9C58cfe75dA79612 ----------
+impersonate account 0xf61eF09B49f1d8f6bA11686f9C58cfe75dA79612, balance 0.075873395648721377
+start on snapshot: 0x1a3
+[Precheck] availableCredit 642.620825992189368333
+[Precheck] totalBorrows 500.513359803694227181
+[Precheck] borrowLimitUsed before migration 77%
+[Precheck] bnbBalance 2.899805472384111805
+[Precheck] vBnbBalance 142.18319197
+[Precheck] busdBorrowBalance 500.513359803694227181
+Error: Liquidity is not enough after migration
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:99:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x1a3
+---------- 0x7b76225388E0ED00d022209730fA22a53842CEFa ----------
+impersonate account 0x7b76225388E0ED00d022209730fA22a53842CEFa, balance 0.042415124854196676
+start on snapshot: 0x1a4
+[Precheck] availableCredit 5851.619911028158804424
+[Precheck] totalBorrows 3928.011118862634586765
+[Precheck] borrowLimitUsed before migration 67%
+[Precheck] bnbBalance 21.578702064621302036
+[Precheck] vBnbBalance 1058.04639909
+[Precheck] busdBorrowBalance 3928.011118862634586765
+[Precheck] busdRepay 3928.011118862634586765
+[Precheck] borrowLimitUsed after migration 0%
+[Execute] bnbColl 21.578702064621302036
+[Execute] pusdDebt 3967.291230051260932632
+[Piggy] expectedFee 20.283392830800895027
+[Piggy] numTroves 101
+[Piggy] approxHint 0xb80358d4310EC387dd67B764a92Be913D6fB9316
+[Piggy] upperHint 0xb80358d4310EC387dd67B764a92Be913D6fB9316
+[Piggy] lowerHint 0xC28ee1e175Ccc02D796723d54EA9Ae0794c9234E
+[VaultMigration] flashloan starting
+[VaultMigration] flashloan end
+[VaultMigration] piggy rewards 100.0
+reverted to snapshot: 0x1a4
+---------- 0x23CCC77AEB5c8Be6820303D4A77a6a4F2fDbA534 ----------
+impersonate account 0x23CCC77AEB5c8Be6820303D4A77a6a4F2fDbA534, balance 3.52517229266333847
+start on snapshot: 0x1be
+[Precheck] availableCredit 1146.75538304037938258
+[Precheck] totalBorrows 492.4243685708126099
+[Precheck] borrowLimitUsed before migration 42%
+[Precheck] bnbBalance 2.40113818124079543
+[Precheck] vBnbBalance 117.73254938
+[Precheck] busdBorrowBalance 492.424368570808108694
+[Precheck] busdRepay 492.424368570808108694
+[Precheck] borrowLimitUsed after migration 0%
+[Execute] bnbColl 2.40113818124079543
+[Execute] pusdDebt 497.34861225651618978
+[Piggy] expectedFee 2.542718142208083752
+[Piggy] numTroves 101
+[Piggy] approxHint 0x10a2DFb788a57587E6deAd219fb2829B8eAd9D7b
+[Piggy] upperHint 0x10a2DFb788a57587E6deAd219fb2829B8eAd9D7b
+[Piggy] lowerHint 0x289EB82D20142eC3019319677fB3fccc206Faf04
+[VaultMigration] flashloan starting
+[VaultMigration] flashloan end
+[VaultMigration] piggy rewards 100.0
+reverted to snapshot: 0x1be
+---------- 0xcDe7cb547525263cBa75d4871E193d95c73b6EcD ----------
+impersonate account 0xcDe7cb547525263cBa75d4871E193d95c73b6EcD, balance 0.001435929382018968
+start on snapshot: 0x1d8
+[Precheck] availableCredit 3967.039000421905276388
+[Precheck] totalBorrows 2000.065009137859400297
+[Precheck] borrowLimitUsed before migration 50%
+[Precheck] bnbBalance 0.0
+[Precheck] vBnbBalance 0.0
+[Precheck] busdBorrowBalance 2000.065009137859400297
+Error: No BNB or BUSD positions
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:96:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x1d8
+---------- 0x44a584B709eCD27369a7484d48bF64eae2FafE85 ----------
+impersonate account 0x44a584B709eCD27369a7484d48bF64eae2FafE85, balance 0.095268136457892574
+start on snapshot: 0x1d9
+ProviderError: HardhatError: HH109: Network connection timed-out.
+Please check your internet connection and networks config
+    at HttpProvider.request (/Users/dxdspirits/workspace/piggy-venus-migration/node_modules/hardhat/src/internal/core/providers/http.ts:49:19)
+    at GanacheGasMultiplierProvider.request (/Users/dxdspirits/workspace/piggy-venus-migration/node_modules/hardhat/src/internal/core/providers/gas-providers.ts:181:34)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+reverted to snapshot: 0x1d9
+---------- 0xD41e5C84141280f31b6e06247397089b62432Ed3 ----------
+impersonate account 0xD41e5C84141280f31b6e06247397089b62432Ed3, balance 0.041617139757690189
+start on snapshot: 0x1da
+[Precheck] availableCredit 9306.45133613917201495
+[Precheck] totalBorrows 3744.183993882143184556
+[Precheck] borrowLimitUsed before migration 40%
+[Precheck] bnbBalance 2.000079949785458389
+[Precheck] vBnbBalance 98.06787185
+[Precheck] busdBorrowBalance 2766.139725566831828426
+[Precheck] busdRepay 418.043377237824609412
+[Precheck] borrowLimitUsed after migration 29%
+[Execute] bnbColl 2.000079949785458389
+[Execute] pusdDebt 422.223811010202855506
+[Piggy] expectedFee 2.157912711862404677
+[Piggy] numTroves 101
+[Piggy] approxHint 0x10a2DFb788a57587E6deAd219fb2829B8eAd9D7b
+[Piggy] upperHint 0x10a2DFb788a57587E6deAd219fb2829B8eAd9D7b
+[Piggy] lowerHint 0x289EB82D20142eC3019319677fB3fccc206Faf04
+[VaultMigration] flashloan starting
+[VaultMigration] flashloan end
+[VaultMigration] piggy rewards 100.0
+reverted to snapshot: 0x1da
+---------- 0x74d38c370E07E7bC659a48dE002779fa23216AD9 ----------
+impersonate account 0x74d38c370E07E7bC659a48dE002779fa23216AD9, balance 0.242669204295208865
+start on snapshot: 0x1f4
+[Precheck] availableCredit 307445.079383527246374564
+[Precheck] totalBorrows 188005.302314121433834978
+[Precheck] borrowLimitUsed before migration 61%
+[Precheck] bnbBalance 200.207602343636466986
+[Precheck] vBnbBalance 9816.57432851
+[Precheck] busdBorrowBalance 188005.302314121433834978
+[Precheck] busdRepay 41846.058324517936752967
+[Precheck] borrowLimitUsed after migration 36%
+[Execute] bnbColl 200.207602343636466986
+[Execute] pusdDebt 42264.518907763116120496
+[Piggy] expectedFee 216.002123040592445778
+[Piggy] numTroves 101
+[Piggy] approxHint 0x10a2DFb788a57587E6deAd219fb2829B8eAd9D7b
+[Piggy] upperHint 0x10a2DFb788a57587E6deAd219fb2829B8eAd9D7b
+[Piggy] lowerHint 0x289EB82D20142eC3019319677fB3fccc206Faf04
+[VaultMigration] flashloan starting
+[VaultMigration] flashloan end
+[VaultMigration] piggy rewards 100.0
+reverted to snapshot: 0x1f4
+---------- 0x0f1c9578D0cFDe41968AD004329a8A0Be91Bfb48 ----------
+impersonate account 0x0f1c9578D0cFDe41968AD004329a8A0Be91Bfb48, balance 0.026580396445061046
+start on snapshot: 0x20e
+[Precheck] availableCredit 804.771772891438989825
+[Precheck] totalBorrows 400.011897180416728184
+[Precheck] borrowLimitUsed before migration 49%
+[Precheck] bnbBalance 3.210128983477410172
+[Precheck] vBnbBalance 157.39896688
+[Precheck] busdBorrowBalance 400.011897180416728184
+Error: Liquidity is not enough after migration
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:99:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x20e
+---------- 0xb3f16FbfC25d3BF46BCD5946f8d715aCD039CA2d ----------
+impersonate account 0xb3f16FbfC25d3BF46BCD5946f8d715aCD039CA2d, balance 0.157128705
+start on snapshot: 0x20f
+[Precheck] availableCredit 14453.763553961853350645
+[Precheck] totalBorrows 3402.813699443483731465
+[Precheck] borrowLimitUsed before migration 23%
+[Precheck] bnbBalance 0.0
+[Precheck] vBnbBalance 0.0
+[Precheck] busdBorrowBalance 400.011298505517764708
+Error: No BNB or BUSD positions
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:96:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x20f
+---------- 0x74d38c370E07E7bC659a48dE002779fa23216AD9 ----------
+impersonate account 0x74d38c370E07E7bC659a48dE002779fa23216AD9, balance 0.242669204295208865
+start on snapshot: 0x210
+[Precheck] availableCredit 307445.079383527246374564
+[Precheck] totalBorrows 188005.302314121433834978
+[Precheck] borrowLimitUsed before migration 61%
+[Precheck] bnbBalance 200.207602343636466986
+[Precheck] vBnbBalance 9816.57432851
+[Precheck] busdBorrowBalance 188005.302314121433834978
+[Precheck] busdRepay 41846.058324517936752967
+[Precheck] borrowLimitUsed after migration 36%
+[Execute] bnbColl 200.207602343636466986
+[Execute] pusdDebt 42264.518907763116120496
+[Piggy] expectedFee 215.997620205629514657
+[Piggy] numTroves 101
+[Piggy] approxHint 0x10a2DFb788a57587E6deAd219fb2829B8eAd9D7b
+[Piggy] upperHint 0x10a2DFb788a57587E6deAd219fb2829B8eAd9D7b
+[Piggy] lowerHint 0x289EB82D20142eC3019319677fB3fccc206Faf04
+[VaultMigration] flashloan starting
+[VaultMigration] flashloan end
+[VaultMigration] piggy rewards 100.0
+reverted to snapshot: 0x210
+---------- 0x0fc65C3285634350625d7e40d2956Ec25b8A834f ----------
+impersonate account 0x0fc65C3285634350625d7e40d2956Ec25b8A834f, balance 0.187953683565062385
+start on snapshot: 0x22a
+[Precheck] availableCredit 13.765582423449574662
+[Precheck] totalBorrows 5.520466956101875461
+[Precheck] borrowLimitUsed before migration 40%
+[Precheck] bnbBalance 0.0
+[Precheck] vBnbBalance 0.0
+[Precheck] busdBorrowBalance 5.520466956101875461
+Error: No BNB or BUSD positions
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:96:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x22a
+---------- 0xd42B63493E0c7ab1879aDbc134E8a07Eaa999D3e ----------
+impersonate account 0xd42B63493E0c7ab1879aDbc134E8a07Eaa999D3e, balance 0.455746859107977774
+start on snapshot: 0x22b
+[Precheck] availableCredit 138420.377619059375297686
+[Precheck] totalBorrows 123575.939866249093367366
+[Precheck] borrowLimitUsed before migration 89%
+[Precheck] bnbBalance 0.0
+[Precheck] vBnbBalance 0.0
+[Precheck] busdBorrowBalance 2000.054442735284414526
+Error: No BNB or BUSD positions
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:96:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x22b
+---------- 0xC31cf50C3559329ed83D87f09af3884E935f2873 ----------
+impersonate account 0xC31cf50C3559329ed83D87f09af3884E935f2873, balance 0.0
+start on snapshot: 0x22c
+[Precheck] availableCredit 429831.257369404458148335
+[Precheck] totalBorrows 310217.31150544933851746
+[Precheck] borrowLimitUsed before migration 72%
+[Precheck] bnbBalance 0.0
+[Precheck] vBnbBalance 0.0
+[Precheck] busdBorrowBalance 310217.31150544933851746
+Error: No BNB or BUSD positions
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:96:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x22c
+---------- 0xC31cf50C3559329ed83D87f09af3884E935f2873 ----------
+impersonate account 0xC31cf50C3559329ed83D87f09af3884E935f2873, balance 0.0
+start on snapshot: 0x22d
+[Precheck] availableCredit 429831.257369404458148335
+[Precheck] totalBorrows 310217.31150544933851746
+[Precheck] borrowLimitUsed before migration 72%
+[Precheck] bnbBalance 0.0
+[Precheck] vBnbBalance 0.0
+[Precheck] busdBorrowBalance 310217.31150544933851746
+Error: No BNB or BUSD positions
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:96:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x22d
+---------- 0xC31cf50C3559329ed83D87f09af3884E935f2873 ----------
+impersonate account 0xC31cf50C3559329ed83D87f09af3884E935f2873, balance 0.0
+start on snapshot: 0x22e
+[Precheck] availableCredit 429831.257369404458148335
+[Precheck] totalBorrows 310217.31150544933851746
+[Precheck] borrowLimitUsed before migration 72%
+[Precheck] bnbBalance 0.0
+[Precheck] vBnbBalance 0.0
+[Precheck] busdBorrowBalance 310217.31150544933851746
+Error: No BNB or BUSD positions
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:96:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x22e
+---------- 0x74d38c370E07E7bC659a48dE002779fa23216AD9 ----------
+impersonate account 0x74d38c370E07E7bC659a48dE002779fa23216AD9, balance 0.242669204295208865
+start on snapshot: 0x22f
+[Precheck] availableCredit 307445.079383527246374564
+[Precheck] totalBorrows 188005.302314121433834978
+[Precheck] borrowLimitUsed before migration 61%
+[Precheck] bnbBalance 200.207602343636466986
+[Precheck] vBnbBalance 9816.57432851
+[Precheck] busdBorrowBalance 188005.302314121433834978
+[Precheck] busdRepay 41846.058324517936752967
+[Precheck] borrowLimitUsed after migration 36%
+[Execute] bnbColl 200.207602343636466986
+[Execute] pusdDebt 42264.518907763116120496
+[Piggy] expectedFee 215.984137680946998334
+[Piggy] numTroves 101
+[Piggy] approxHint 0x10a2DFb788a57587E6deAd219fb2829B8eAd9D7b
+[Piggy] upperHint 0x10a2DFb788a57587E6deAd219fb2829B8eAd9D7b
+[Piggy] lowerHint 0x289EB82D20142eC3019319677fB3fccc206Faf04
+[VaultMigration] flashloan starting
+[VaultMigration] flashloan end
+[VaultMigration] piggy rewards 100.0
+reverted to snapshot: 0x22f
+---------- 0x7282b790A93357Aed69896090Abda21bE27dd0Fa ----------
+impersonate account 0x7282b790A93357Aed69896090Abda21bE27dd0Fa, balance 0.591526416055850067
+start on snapshot: 0x249
+[Precheck] availableCredit 124925.620004121025708119
+[Precheck] totalBorrows 116139.158436923154518012
+[Precheck] borrowLimitUsed before migration 92%
+[Precheck] bnbBalance 35.02312867172646129
+[Precheck] vBnbBalance 1717.25320017
+[Precheck] busdBorrowBalance 35402.624125390898898503
+[Precheck] busdRepay 7320.300867439786762427
+[Precheck] borrowLimitUsed after migration 75%
+[Execute] bnbColl 35.02312867172646129
+[Execute] pusdDebt 7393.503876114184630051
+[Piggy] expectedFee 37.782197375398351888
+[Piggy] numTroves 101
+[Piggy] approxHint 0x10a2DFb788a57587E6deAd219fb2829B8eAd9D7b
+[Piggy] upperHint 0x10a2DFb788a57587E6deAd219fb2829B8eAd9D7b
+[Piggy] lowerHint 0x289EB82D20142eC3019319677fB3fccc206Faf04
+[VaultMigration] flashloan starting
+[VaultMigration] flashloan end
+[VaultMigration] piggy rewards 100.0
+reverted to snapshot: 0x249
+---------- 0x641D6d5789D4c315E1e2bFB1607F0A8618AA3587 ----------
+impersonate account 0x641D6d5789D4c315E1e2bFB1607F0A8618AA3587, balance 0.016634739105308155
+start on snapshot: 0x263
+[Precheck] availableCredit 81.35110228506778062
+[Precheck] totalBorrows 70.0100977902920196
+[Precheck] borrowLimitUsed before migration 86%
+[Precheck] bnbBalance 0.0
+[Precheck] vBnbBalance 0.0
+[Precheck] busdBorrowBalance 70.0100977902920196
+Error: No BNB or BUSD positions
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:96:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x263
+---------- 0x82FA7405a0d83b96E6E364f9dE90c8De2eFcAD81 ----------
+impersonate account 0x82FA7405a0d83b96E6E364f9dE90c8De2eFcAD81, balance 0.810798746369735732
+start on snapshot: 0x264
+[Precheck] availableCredit 173111.045240050775164438
+[Precheck] totalBorrows 126783.172664539648773792
+[Precheck] borrowLimitUsed before migration 73%
+[Precheck] bnbBalance 143.310488500478716421
+[Precheck] vBnbBalance 7026.79641508
+[Precheck] busdBorrowBalance 126479.678500266586858383
+[Precheck] busdRepay 29953.802903113391448207
+[Precheck] borrowLimitUsed after migration 41%
+[Execute] bnbColl 143.310488500478716421
+[Execute] pusdDebt 30253.340932144525362689
+[Piggy] expectedFee 154.593858086434872889
+[Piggy] numTroves 101
+[Piggy] approxHint 0x10a2DFb788a57587E6deAd219fb2829B8eAd9D7b
+[Piggy] upperHint 0x10a2DFb788a57587E6deAd219fb2829B8eAd9D7b
+[Piggy] lowerHint 0x289EB82D20142eC3019319677fB3fccc206Faf04
+[VaultMigration] flashloan starting
+[VaultMigration] flashloan end
+[VaultMigration] piggy rewards 100.0
+reverted to snapshot: 0x264
+---------- 0xe9504835aC8A68178AAffd3145Fd7E4a48683d2a ----------
+impersonate account 0xe9504835aC8A68178AAffd3145Fd7E4a48683d2a, balance 0.572948095090852255
+start on snapshot: 0x27e
+[Precheck] availableCredit 44820.072453443791918577
+[Precheck] totalBorrows 37302.052303532865495627
+[Precheck] borrowLimitUsed before migration 83%
+[Precheck] bnbBalance 7.739217095018521005
+[Precheck] vBnbBalance 379.46910591
+[Precheck] busdBorrowBalance 5392.221585477137947432
+[Precheck] busdRepay 1617.599562420137803658
+[Precheck] borrowLimitUsed after migration 76%
+[Execute] bnbColl 7.739217095018521005
+[Execute] pusdDebt 1633.775558044339181694
+[Piggy] expectedFee 8.348381646847811258
+[Piggy] numTroves 101
+[Piggy] approxHint 0x10a2DFb788a57587E6deAd219fb2829B8eAd9D7b
+[Piggy] upperHint 0x10a2DFb788a57587E6deAd219fb2829B8eAd9D7b
+[Piggy] lowerHint 0x289EB82D20142eC3019319677fB3fccc206Faf04
+[VaultMigration] flashloan starting
+[VaultMigration] flashloan end
+[VaultMigration] piggy rewards 100.0
+reverted to snapshot: 0x27e
+---------- 0x2121cd34d7AE64678e4Bd6040B4ec32183cC27D1 ----------
+impersonate account 0x2121cd34d7AE64678e4Bd6040B4ec32183cC27D1, balance 0.467683878274443748
+start on snapshot: 0x298
+[Precheck] availableCredit 9655.525925321128840907
+[Precheck] totalBorrows 7879.42877015516431714
+[Precheck] borrowLimitUsed before migration 81%
+[Precheck] bnbBalance 0.0
+[Precheck] vBnbBalance 0.0
+[Precheck] busdBorrowBalance 374.483069247634431866
+Error: No BNB or BUSD positions
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:96:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x298
+---------- 0xB6fE3Af8ea3b908debf6d9bAd3BbA628ac0A3e04 ----------
+impersonate account 0xB6fE3Af8ea3b908debf6d9bAd3BbA628ac0A3e04, balance 0.119945526662065544
+start on snapshot: 0x299
+[Precheck] availableCredit 67593.950217354228906148
+[Precheck] totalBorrows 40000.71723530506880656
+[Precheck] borrowLimitUsed before migration 59%
+[Precheck] bnbBalance 0.0
+[Precheck] vBnbBalance 0.0
+[Precheck] busdBorrowBalance 40000.71723530506880656
+Error: No BNB or BUSD positions
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:96:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x299
+---------- 0x89CA1D82b4DfDe53617Fc9D1C36063fE8D517744 ----------
+impersonate account 0x89CA1D82b4DfDe53617Fc9D1C36063fE8D517744, balance 0.442112058087149865
+start on snapshot: 0x29a
+[Precheck] availableCredit 314456.514206673948609204
+[Precheck] totalBorrows 296562.760089670194966309
+[Precheck] borrowLimitUsed before migration 94%
+[Precheck] bnbBalance 0.0
+[Precheck] vBnbBalance 0.0
+[Precheck] busdBorrowBalance 274555.677150732719242112
+Error: No BNB or BUSD positions
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:96:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x29a
+---------- 0xc7730421831F8566D7aE624A3b66F0aC0Be3A6f7 ----------
+impersonate account 0xc7730421831F8566D7aE624A3b66F0aC0Be3A6f7, balance 0.041507526832367649
+start on snapshot: 0x29b
+[Precheck] availableCredit 248.643188540256141791
+[Precheck] totalBorrows 180.002959633417504592
+[Precheck] borrowLimitUsed before migration 72%
+[Precheck] bnbBalance 0.0
+[Precheck] vBnbBalance 0.0
+[Precheck] busdBorrowBalance 180.002959633417504592
+Error: No BNB or BUSD positions
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:96:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x29b
+---------- 0xC23274347e8Aa82d363140d3cefb71Ff588EfFed ----------
+impersonate account 0xC23274347e8Aa82d363140d3cefb71Ff588EfFed, balance 0.019835694154874308
+start on snapshot: 0x29c
+[Precheck] availableCredit 8723.294891774265109106
+[Precheck] totalBorrows 3394.78074964236638233
+[Precheck] borrowLimitUsed before migration 38%
+[Precheck] bnbBalance 0.0
+[Precheck] vBnbBalance 0.0
+[Precheck] busdBorrowBalance 1703.695818745612248561
+Error: No BNB or BUSD positions
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:96:11)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x29c
+---------- 0xFea20E4c80f612b2B3DbAAeafB1E868cC5557fa1 ----------
+impersonate account 0xFea20E4c80f612b2B3DbAAeafB1E868cC5557fa1, balance 0.321294896534560385
+start on snapshot: 0x29d
+[Precheck] availableCredit 19186.392858596377073337
+[Precheck] totalBorrows 12634.761906238516143491
+[Precheck] borrowLimitUsed before migration 65%
+[Precheck] bnbBalance 0.0
+[Precheck] vBnbBalance 0.0
+[Precheck] busdBorrowBalance 12634.761906238516143491
+Error: No BNB or BUSD positions
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:96:11)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x29d
+---------- 0x89CA1D82b4DfDe53617Fc9D1C36063fE8D517744 ----------
+impersonate account 0x89CA1D82b4DfDe53617Fc9D1C36063fE8D517744, balance 0.442112058087149865
+start on snapshot: 0x29e
+[Precheck] availableCredit 314456.514206673948609204
+[Precheck] totalBorrows 296562.760089670194966309
+[Precheck] borrowLimitUsed before migration 94%
+[Precheck] bnbBalance 0.0
+[Precheck] vBnbBalance 0.0
+[Precheck] busdBorrowBalance 274555.677150732719242112
+Error: No BNB or BUSD positions
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:96:11)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x29e
+---------- 0x5B5bEEBed201470d3864b835dB6F96bBe84bB1eC ----------
+impersonate account 0x5B5bEEBed201470d3864b835dB6F96bBe84bB1eC, balance 0.078182728984517983
+start on snapshot: 0x29f
+[Precheck] availableCredit 381.656773987439343993
+[Precheck] totalBorrows 109.447003750958309484
+[Precheck] borrowLimitUsed before migration 28%
+[Precheck] bnbBalance 0.516188564651744749
+[Precheck] vBnbBalance 25.30974525
+[Precheck] busdBorrowBalance 109.447002694372827202
+[Precheck] busdRepay 109.447002694372827202
+[Precheck] borrowLimitUsed after migration 0%
+[Execute] bnbColl 0.516188564651744749
+[Execute] pusdDebt 110.541472721316555474
+[Piggy] expectedFee 0.564817592281183791
+[Piggy] numTroves 101
+[Piggy] approxHint 0x289EB82D20142eC3019319677fB3fccc206Faf04
+[Piggy] upperHint 0x10a2DFb788a57587E6deAd219fb2829B8eAd9D7b
+[Piggy] lowerHint 0x289EB82D20142eC3019319677fB3fccc206Faf04
+[VaultMigration] flashloan starting
+ProviderError: Error: VM Exception while processing transaction: reverted with reason string 'BorrowerOps: Trove's net debt must be greater than minimum'
+    at HttpProvider.request (/Users/dxdspirits/workspace/piggy-venus-migration/node_modules/hardhat/src/internal/core/providers/http.ts:49:19)
+    at GanacheGasMultiplierProvider.request (/Users/dxdspirits/workspace/piggy-venus-migration/node_modules/hardhat/src/internal/core/providers/gas-providers.ts:181:34)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+reverted to snapshot: 0x29f
+---------- 0xF41028B74cc2978c0BB74EaFd795759C9B864dB9 ----------
+impersonate account 0xF41028B74cc2978c0BB74EaFd795759C9B864dB9, balance 0.025849970277233313
+start on snapshot: 0x2af
+[Precheck] availableCredit 743.053785963204950342
+[Precheck] totalBorrows 341.006392149070186859
+[Precheck] borrowLimitUsed before migration 45%
+[Precheck] bnbBalance 0.0
+[Precheck] vBnbBalance 0.0
+[Precheck] busdBorrowBalance 300.003517382950366419
+Error: No BNB or BUSD positions
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:96:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x2af
+---------- 0x1ae9a70cE30a629fb7F5d17E5F95715Be03aFd3D ----------
+impersonate account 0x1ae9a70cE30a629fb7F5d17E5F95715Be03aFd3D, balance 0.952819396732699749
+start on snapshot: 0x2b0
+[Precheck] availableCredit 2947.458146528687110947
+[Precheck] totalBorrows 2148.699433414662590422
+[Precheck] borrowLimitUsed before migration 72%
+[Precheck] bnbBalance 4.235307752655963539
+[Precheck] vBnbBalance 207.66550756
+[Precheck] busdBorrowBalance 500.003752633589859886
+[Precheck] busdRepay 500.003752633589859886
+[Precheck] borrowLimitUsed after migration 87%
+[Execute] bnbColl 4.235307752655963539
+[Execute] pusdDebt 505.003790159925758484
+[Piggy] expectedFee 2.580237569786641236
+[Piggy] numTroves 101
+[Piggy] approxHint 0x1a2CcCf235876EEf1fc0679cc33c4Aa00695c30e
+[Piggy] upperHint 0x1a2CcCf235876EEf1fc0679cc33c4Aa00695c30e
+[Piggy] lowerHint 0xe4707843d2686cE7A11D383dE182E961772B39f4
+[VaultMigration] flashloan starting
+[VaultMigration] flashloan end
+[VaultMigration] piggy rewards 100.0
+reverted to snapshot: 0x2b0
+---------- 0xE542D57958097f8dBFEf04b444f055f8f91C6fCa ----------
+impersonate account 0xE542D57958097f8dBFEf04b444f055f8f91C6fCa, balance 0.193375853904561301
+start on snapshot: 0x2ca
+ProviderError: HardhatError: HH109: Network connection timed-out.
+Please check your internet connection and networks config
+    at HttpProvider.request (/Users/dxdspirits/workspace/piggy-venus-migration/node_modules/hardhat/src/internal/core/providers/http.ts:49:19)
+    at GanacheGasMultiplierProvider.request (/Users/dxdspirits/workspace/piggy-venus-migration/node_modules/hardhat/src/internal/core/providers/gas-providers.ts:181:34)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+reverted to snapshot: 0x2ca
+---------- 0xd1a0582aD94c515AC2D6DdE9a90a1c4dF9c47aC7 ----------
+impersonate account 0xd1a0582aD94c515AC2D6DdE9a90a1c4dF9c47aC7, balance 0.048797058768185913
+start on snapshot: 0x2cb
+ProviderError: HardhatError: HH109: Network connection timed-out.
+Please check your internet connection and networks config
+    at HttpProvider.request (/Users/dxdspirits/workspace/piggy-venus-migration/node_modules/hardhat/src/internal/core/providers/http.ts:49:19)
+    at GanacheGasMultiplierProvider.request (/Users/dxdspirits/workspace/piggy-venus-migration/node_modules/hardhat/src/internal/core/providers/gas-providers.ts:181:34)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+reverted to snapshot: 0x2cb
+---------- 0x1ae9a70cE30a629fb7F5d17E5F95715Be03aFd3D ----------
+impersonate account 0x1ae9a70cE30a629fb7F5d17E5F95715Be03aFd3D, balance 0.952819396732699749
+start on snapshot: 0x2cc
+[Precheck] availableCredit 2947.458146528687110947
+[Precheck] totalBorrows 2148.699433414662590422
+[Precheck] borrowLimitUsed before migration 72%
+[Precheck] bnbBalance 4.235307752655963539
+[Precheck] vBnbBalance 207.66550756
+[Precheck] busdBorrowBalance 500.003752633589859886
+[Precheck] busdRepay 500.003752633589859886
+[Precheck] borrowLimitUsed after migration 87%
+[Execute] bnbColl 4.235307752655963539
+[Execute] pusdDebt 505.003790159925758484
+[Piggy] expectedFee 2.577088235376305186
+[Piggy] numTroves 101
+[Piggy] approxHint 0x1a2CcCf235876EEf1fc0679cc33c4Aa00695c30e
+[Piggy] upperHint 0x1a2CcCf235876EEf1fc0679cc33c4Aa00695c30e
+[Piggy] lowerHint 0xe4707843d2686cE7A11D383dE182E961772B39f4
+[VaultMigration] flashloan starting
+[VaultMigration] flashloan end
+[VaultMigration] piggy rewards 100.0
+reverted to snapshot: 0x2cc
+---------- 0x79d576480956dEDf2552E069Ae08F8fc31218d90 ----------
+impersonate account 0x79d576480956dEDf2552E069Ae08F8fc31218d90, balance 0.065753598667310563
+start on snapshot: 0x2e6
+ProviderError: HardhatError: HH109: Network connection timed-out.
+Please check your internet connection and networks config
+    at HttpProvider.request (/Users/dxdspirits/workspace/piggy-venus-migration/node_modules/hardhat/src/internal/core/providers/http.ts:49:19)
+    at GanacheGasMultiplierProvider.request (/Users/dxdspirits/workspace/piggy-venus-migration/node_modules/hardhat/src/internal/core/providers/gas-providers.ts:181:34)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+reverted to snapshot: 0x2e6
+---------- 0x7971Ce938e1c2B4a4ADB4d708fA0F72Fcad9F516 ----------
+impersonate account 0x7971Ce938e1c2B4a4ADB4d708fA0F72Fcad9F516, balance 0.043540852085288445
+start on snapshot: 0x2e7
+[Precheck] availableCredit 642.869197253401594445
+[Precheck] totalBorrows 309.150628010354191379
+[Precheck] borrowLimitUsed before migration 48%
+[Precheck] bnbBalance 0.0
+[Precheck] vBnbBalance 0.0
+[Precheck] busdBorrowBalance 285.064220559519304239
+Error: No BNB or BUSD positions
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:96:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x2e7
+---------- 0xe938e0Da9e8626483E4dee6Fa2Dd2aaD496B6D25 ----------
+impersonate account 0xe938e0Da9e8626483E4dee6Fa2Dd2aaD496B6D25, balance 3.434372036475168905
+start on snapshot: 0x2e8
+[Precheck] availableCredit 11754.763558103923926132
+[Precheck] totalBorrows 4085.129443276715680504
+[Precheck] borrowLimitUsed before migration 34%
+[Precheck] bnbBalance 12.010862201985243342
+[Precheck] vBnbBalance 588.91630575
+[Precheck] busdBorrowBalance 1533.964404730475307155
+[Precheck] busdRepay 1533.964404730475307155
+[Precheck] borrowLimitUsed after migration 29%
+[Execute] bnbColl 12.010862201985243342
+[Execute] pusdDebt 1549.304048777780060226
+[Piggy] expectedFee 7.894993502522974098
+[Piggy] numTroves 101
+[Piggy] approxHint 0x50C26038A6651ccAA2E13e35C8C695A7c8B06c1B
+[Piggy] upperHint 0x50C26038A6651ccAA2E13e35C8C695A7c8B06c1B
+[Piggy] lowerHint 0x083fb4eD57d50D99e42a2097907118DB014E5CFa
+[VaultMigration] flashloan starting
+[VaultMigration] flashloan end
+[VaultMigration] piggy rewards 100.0
+reverted to snapshot: 0x2e8
+---------- 0x79ee169786a5A335C2ac89deFA544E347a6BAA21 ----------
+impersonate account 0x79ee169786a5A335C2ac89deFA544E347a6BAA21, balance 0.18273179
+start on snapshot: 0x302
+[Precheck] availableCredit 2371.32015569405536082
+[Precheck] totalBorrows 913.787839886320914286
+[Precheck] borrowLimitUsed before migration 38%
+[Precheck] bnbBalance 9.459836523890709803
+[Precheck] vBnbBalance 463.83447624
+[Precheck] busdBorrowBalance 50.00013138017940554
+Error: Liquidity is not enough after migration
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:99:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x302
+---------- 0xb3a4E70C7a911EDc0C4035A37D0F96D7Bd2df07F ----------
+impersonate account 0xb3a4E70C7a911EDc0C4035A37D0F96D7Bd2df07F, balance 0.045488659137519423
+start on snapshot: 0x303
+[Precheck] availableCredit 13453.01008897796374527
+[Precheck] totalBorrows 12068.792276929415488245
+[Precheck] borrowLimitUsed before migration 89%
+[Precheck] bnbBalance 20.030908264095264366
+[Precheck] vBnbBalance 982.1550108
+[Precheck] busdBorrowBalance 12068.792276929415488245
+[Precheck] busdRepay 4186.726905972764856018
+[Precheck] borrowLimitUsed after migration 48%
+[Execute] bnbColl 20.030908264095264366
+[Execute] pusdDebt 4228.594175032492504578
+[Piggy] expectedFee 21.547426982148462794
+[Piggy] numTroves 101
+[Piggy] approxHint 0x10a2DFb788a57587E6deAd219fb2829B8eAd9D7b
+[Piggy] upperHint 0x10a2DFb788a57587E6deAd219fb2829B8eAd9D7b
+[Piggy] lowerHint 0x289EB82D20142eC3019319677fB3fccc206Faf04
+[VaultMigration] flashloan starting
+[VaultMigration] flashloan end
+[VaultMigration] piggy rewards 100.0
+reverted to snapshot: 0x303
+---------- 0xc86b634DFDAAFb241998476754C9cEFaB16FD25F ----------
+impersonate account 0xc86b634DFDAAFb241998476754C9cEFaB16FD25F, balance 0.11364730832053004
+start on snapshot: 0x31d
+[Precheck] availableCredit 3574.068762722936752582
+[Precheck] totalBorrows 1710.285986198522595346
+[Precheck] borrowLimitUsed before migration 47%
+[Precheck] bnbBalance 1.943600342540063357
+[Precheck] vBnbBalance 95.29856511
+[Precheck] busdBorrowBalance 1710.285986198522595346
+[Precheck] busdRepay 406.238386262107109124
+[Precheck] borrowLimitUsed after migration 29%
+[Execute] bnbColl 1.943600342540063357
+[Execute] pusdDebt 410.300770124728180215
+[Piggy] expectedFee 2.090710490629980142
+[Piggy] numTroves 101
+[Piggy] approxHint 0x10a2DFb788a57587E6deAd219fb2829B8eAd9D7b
+[Piggy] upperHint 0x10a2DFb788a57587E6deAd219fb2829B8eAd9D7b
+[Piggy] lowerHint 0x289EB82D20142eC3019319677fB3fccc206Faf04
+[VaultMigration] flashloan starting
+[VaultMigration] flashloan end
+[VaultMigration] piggy rewards 100.0
+reverted to snapshot: 0x31d
+---------- 0xE3a28eD59b359Ea1795bE61E28DdA9Fe8c7aE219 ----------
+impersonate account 0xE3a28eD59b359Ea1795bE61E28DdA9Fe8c7aE219, balance 0.193860042973913507
+start on snapshot: 0x337
+[Precheck] availableCredit 1307.479129332427259809
+[Precheck] totalBorrows 500.0
+[Precheck] borrowLimitUsed before migration 38%
+[Precheck] bnbBalance 0.0
+[Precheck] vBnbBalance 0.0
+[Precheck] busdBorrowBalance 500.0
+Error: No BNB or BUSD positions
+    at App.precheck (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:96:11)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:94:5)
+    at shotshotAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:166:28)
+    at listUsersAndRun (/Users/dxdspirits/workspace/piggy-venus-migration/apps/index.js:180:5)
+reverted to snapshot: 0x337
