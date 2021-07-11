@@ -168,9 +168,18 @@ async function shotshotAndRun(publicKey) {
   console.log('reverted to snapshot:', snapshotId);
 }
 
+async function listUsersAndRun() {
+  const borrowers = await VenusApp.listUsers(9040000, 9054000);
+  for (let borrower of borrowers) {
+    console.log(`---------- ${borrower} ----------`);
+    await shotshotAndRun(borrower);
+  }
+}
+
 // 可以传一个已经在 venus 有头寸的用户的钱包地址
 // shotshotAndRun('0x096586843d79f7bf10e95fd4bfcb2bc2a0c44080')
-shotshotAndRun()
+// shotshotAndRun()
+listUsersAndRun()
   .then(() => process.exit(0))
   .catch(error => {
     console.error(error);

@@ -19,8 +19,11 @@ const vTokenABI = [
   /* 下面几项要是 write, 因为计算前会先更新利息 */
   'function balanceOfUnderlying(address account) returns (uint)',
   'function accrueInterest() returns (uint)',
-  // 'function borrowBalanceCurrent(address account) returns (uint)',
   /* 不要用 borrowBalanceCurrent, 获得返回结果不大方便, 他等价于调用 accrueInterest 以后直接读取 borrowBalanceStored */
+  // 'function borrowBalanceCurrent(address account) returns (uint)',
+  /* Events */
+  'event Redeem(address redeemer, uint redeemAmount, uint redeemTokens)',
+  'event Borrow(address borrower, uint borrowAmount, uint accountBorrows, uint totalBorrows)',
 ];
 
 const ERC20ABI = [
