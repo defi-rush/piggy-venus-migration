@@ -56,23 +56,26 @@ contract PiggyReward is ERC20, IPiggyReward {
         rewardMultipler = _rewardMultipler;
     }
 
+    function _transferOut(address _to, uint256 _amount) internal {
+        require(tokenPiggy.balanceOf(address(this)) >= _amount, "withdraw amount exceeds pool balance");
+        _burn(_to, _amount);  // _burn will check user balance first
+        tokenPiggy.safeTransfer(_to, _amount);
+    }
+
     function reward(address _account, uint256 _nums) external override {
         require(msg.sender == vaultMigration, "!vaultMigration");
-        uint256 amount = _nums * rewardMultipler;
-        /*
-        TODO
-        if (tokenPiggy.balanceOf(address(this)) >= amount) {
-            tokenPiggy.safeTransfer(msg.sender, amount);
+        uint256 _amount = _nums * rewardMultipler;
+        _mint(_account, _amount);
+        if (tokenPiggy.balanceOf(address(this)) >= _amount) {
+            _transferOut(_account, _amount);
         }
-        还需要另一个方法来 rewardAll
+        /*
+        TODO还需要另一个方法来 rewardAll
         */
-        _mint(_account, amount);
     }
 
     function claimReward(uint256 _amount) external override {
-        require(tokenPiggy.balanceOf(address(this)) >= _amount, "withdraw amount exceeds pool balance");
-        _burn(msg.sender, _amount);  // check user balance and burn
-        tokenPiggy.safeTransfer(msg.sender, _amount);
+        _transferOut(msg.sender, _amount);
     }
 
 }
