@@ -1,11 +1,12 @@
 module.exports = async ({
-  getNamedAccounts, deployments, getChainId,
+  getNamedAccounts, deployments, getChainId, network
   // ethernal
 }) => {
   const { deploy } = deployments;
   const chainId = await getChainId();
-  if (+chainId != 56) {
-    // 在主链上不能部署 faucet
+  // if (+chainId != 56) {
+  // 在主链上不能部署 faucet
+  if (network.name === 'localhost') {
     const { deployer } = await getNamedAccounts();
     const BNBFaucet = await deploy('BNBFaucet', {
       from: deployer,
