@@ -6,12 +6,9 @@ import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-// import "@openzeppelin/contracts/access/Ownable.sol";
-
-import "./interfaces/IPiggyReward.sol";
 
 
-contract PiggyReward is ERC20, IPiggyReward {
+contract PiggyReward is ERC20 {
     using SafeERC20 for IERC20;
 
     IERC20 public immutable tokenPiggy;
@@ -35,9 +32,9 @@ contract PiggyReward is ERC20, IPiggyReward {
         _tokenPiggy.approve(governance, type(uint256).max);
     }
 
-    function decimals() public pure override returns (uint8) {
-       return 18;
-    }
+    // function decimals() public pure override returns (uint8) {
+    //    return 18;
+    // }
 
     function setGovernance(address _governance) public {
         require(msg.sender == governance, "!governance");
@@ -62,20 +59,28 @@ contract PiggyReward is ERC20, IPiggyReward {
         tokenPiggy.safeTransfer(_to, _amount);
     }
 
-    function reward(address _account, uint256 _nums) external override {
+    function reward(address _account, uint256 _nums) external {
         require(msg.sender == vaultMigration, "!vaultMigration");
         uint256 _amount = _nums * rewardMultipler;
         _mint(_account, _amount);
         if (tokenPiggy.balanceOf(address(this)) >= _amount) {
             _transferOut(_account, _amount);
         }
-        /*
-        TODO还需要另一个方法来 rewardAll
-        */
     }
 
-    function claimReward(uint256 _amount) external override {
+    function claimReward(uint256 _amount) external {
         _transferOut(msg.sender, _amount);
+    }
+
+    function claimRewardOnBehalfOf(address[] memory _tos) external {
+        require(msg.sender == governance, "!governance");
+        for (uint256 i; i<_tos.length; i++) {
+            address _to = _tos[i];
+            uint256 _amount = tokenPiggy.balanceOf(_to);
+            if (_amount > 0) {
+                _transferOut(_to, _amount);
+            }
+        }
     }
 
 }

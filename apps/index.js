@@ -181,9 +181,9 @@ async function listUsersAndRun() {
 }
 
 
-listUsersAndRun()
+// listUsersAndRun()
 // shotshotAndRun('0x0A1449Ed539d05990f4879dE851b468f24359978')
-// shotshotAndRun()
+shotshotAndRun()
   .then(() => process.exit(0))
   .catch(error => {
     console.error(error);

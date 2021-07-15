@@ -246,7 +246,6 @@ contract VaultMigration is IDODOCallee {
          * 到这里应该合约里没有 BNB/PUSD/BUSD 余额了
          */
         if (address(piggyReward) != address(0)) {
-            // TODO! 不用，你目前搞法稍微改一下，合约直接发piggy，不够的时候记下来，然后我们后续人工补发下
             piggyReward.reward(msg.sender, 1e18);
         }
         emit Migrated(msg.sender, vInfo.vBnbBalance, vInfo.busdBorrowBalance, bnbColl, pusdDebt);

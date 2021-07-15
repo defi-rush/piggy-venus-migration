@@ -36,7 +36,7 @@ describe('Test Piggy Reward', function() {
     await network.provider.send('hardhat_impersonateAccount', [piggyHolder]);
     const piggyHolderWallet = await ethers.getSigner(piggyHolder);
     const tokenPIGGY = await getContractInstance('PIGGY', piggyHolderWallet);
-    const amount = ethers.utils.parseEther('10000');
+    const amount = ethers.utils.parseEther('1000');
     await tokenPIGGY.transfer(piggyReward.address, amount).then((tx) => tx.wait());
     const balance = await tokenPIGGY.balanceOf(piggyReward.address);
     expect(balance.eq(amount)).to.be.true;
@@ -56,6 +56,20 @@ describe('Test Piggy Reward', function() {
     const tokenPIGGY = await getContractInstance('PIGGY');
     const balancePiggy = await tokenPIGGY.balanceOf(userWallet.address);
     expect(balancePiggy.eq(amount.mul(100))).to.be.true;
+  });
+
+  it('Should transfer to me 100 PIGGY more', async function() {
+    const { deployer } = await getNamedAccounts();
+    const governanceWallet = await ethers.getSigner(deployer);
+    await piggyReward.connect(governanceWallet).claimRewardOnBehalfOf([
+      userWallet.address
+    ]).then((tx) => tx.wait());
+    const balanceReward = await piggyReward.balanceOf(userWallet.address);
+    expect(balanceReward.eq(0)).to.be.true;
+    // 这次转出了 100, 还剩下 100 是上一次 reward 留下的
+    const tokenPIGGY = await getContractInstance('PIGGY');
+    const balancePiggy = await tokenPIGGY.balanceOf(userWallet.address);
+    expect(balancePiggy.eq(ethers.utils.parseEther('200'))).to.be.true;
   });
 
   after(async () => {
