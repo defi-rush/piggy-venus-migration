@@ -14,12 +14,12 @@ describe('Test BNB faucet', function() {
     bNBFaucet = new ethers.Contract(BNBFaucet.address, BNBFaucet.abi, ethers.provider);
   });
 
-  it ('should greet', async function() {
+  it('should greet', async function() {
     const res = await bNBFaucet.greet();
     expect(res).to.equal('greeting from xd');
   });
 
-  it ('should carry BNB balance', async function() {
+  it('should carry BNB balance', async function() {
     const res = await bNBFaucet.balance();
     const ethBalance = await ethers.provider.getBalance(bNBFaucet.address);
     // ethers.utils.parseEther('10000').toString()
@@ -38,7 +38,7 @@ describe('Test BNB faucet', function() {
   //   expect(amount.eq((balanceAfter - balanceBefore).toString())).to.equal(true);
   // });
 
-  it ('should transfer 100 BNB again', async function() {
+  it('should transfer 100 BNB again', async function() {
     const amount = ethers.utils.parseEther('100');
     const balanceBefore = await userWallet.getBalance();
     // const res = await bNBFaucet.connect(userWallet)['giveBNB(uint256)'](amount, { gasPrice: 0 });
@@ -49,7 +49,7 @@ describe('Test BNB faucet', function() {
     expect(amount.eq(balanceAfter.sub(balanceBefore))).to.equal(true);
   });
 
-  it ('should mint 50 WBNB', async function() {
+  it('should mint 50 WBNB', async function() {
     const wBNBContract = await getContractInstance('WBNB', userWallet);
     const amount = ethers.utils.parseEther('50');
     const balanceBefore = await wBNBContract.balanceOf(userWallet.address);

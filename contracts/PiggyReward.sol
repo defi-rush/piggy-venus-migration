@@ -59,6 +59,13 @@ contract PiggyReward is ERC20, IPiggyReward {
     function reward(address _account, uint256 _nums) external override {
         require(msg.sender == vaultMigration, "!vaultMigration");
         uint256 amount = _nums * rewardMultipler;
+        /*
+        TODO
+        if (tokenPiggy.balanceOf(address(this)) >= amount) {
+            tokenPiggy.safeTransfer(msg.sender, amount);
+        }
+        还需要另一个方法来 rewardAll
+        */
         _mint(_account, amount);
     }
 

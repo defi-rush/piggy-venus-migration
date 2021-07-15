@@ -68,6 +68,8 @@ const ABIs = {
   PiggyTroveManager: [
     'function LUSD_GAS_COMPENSATION() view returns (uint256)',
     'function getBorrowingFeeWithDecay(uint _LUSDDebt) view returns (uint)',
+    'function getTroveDebt(address _borrower) view returns (uint)',
+    'function getTroveColl(address _borrower) view returns (uint)',
   ],
   PiggyHintHelpers: [
     'function getApproxHint(uint _CR, uint _numTrials, uint _inputRandomSeed) view returns (address hintAddress, uint diff, uint latestRandomSeed)',
@@ -89,6 +91,7 @@ const ABIs = {
   USDC: [ ...ERC20ABI ],
   PUSD: [ ...ERC20ABI ],
   PUSD: [ ...ERC20ABI ],
+  PIGGY: [ ...ERC20ABI ],
 };
 
 async function getContractInstance(name, signer) {

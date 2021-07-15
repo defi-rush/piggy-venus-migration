@@ -49,17 +49,20 @@ App.prototype.prepareVenusPositions = async function() {
   await faucet.requestBNB(20);
   await this.venusApp.initMarketWithMultipleAssets(
     /* 将清空所有头寸 */
-    // { 'vBNB': 1200 },  // collaterals
-    // { 'vBUSD': 900 },  // debts
-    /* Piggy 最低质押率不满足 */
+    { 'vBNB': 1200 },  // collaterals
+    { 'vBUSD': 900 },  // debts
+    /* Piggy 最小 pusd debt 不满足 */
+    // { 'vBNB': 225, 'vETH': 200 },  // collaterals
+    // { 'vBUSD': 178 },  // debts
+    /* Piggy 最低质押率不满足, 这个会自动把 busdRepay 改成 1000, 最后导致 venus 剩余抵押率足够 */
     // { 'vBNB': 1500, 'vETH': 500 },  // collaterals
     // { 'vBUSD': 1400, 'vUSDC': 100 },  // debts
     /* 剩余抵押率不足 */
     // { 'vBNB': 1200, 'vETH': 60 },  // collaterals
     // { 'vBUSD': 900, 'vUSDC': 100 },  // debts
     /* 剩余抵押率足够 */
-    { 'vBNB': 1000, 'vETH': 300 },  // collaterals
-    { 'vBUSD': 800, 'vUSDC': 200 },  // debts
+    // { 'vBNB': 1000, 'vETH': 300 },  // collaterals
+    // { 'vBUSD': 800, 'vUSDC': 200 },  // debts
   );
 }
 
@@ -74,7 +77,7 @@ App.prototype.prepareVenusPositions = async function() {
  * 为了达到 150% 的 collateral ratio, 需要 borrowLimitUsed 小于 5/6 (80%)
  * 也就是 liquidity / totalBorrows > 0.2
  * -
- * 合约里不再需要判断, vBNB.transferFrom 在 liquidity 不足的时候会执行失败
+ * 合约里不再需要判断 liquidity 相关的信息, vBNB.transferFrom 在 liquidity 不足的时候会执行失败
  */
 App.prototype.precheck = async function() {
   const {
@@ -95,15 +98,17 @@ App.prototype.precheck = async function() {
   if (bnbBalance.lte(0) || busdBorrowBalance.lte(0)) {
     throw new Error('No BNB or BUSD positions');
   }
-  if (liquidityToRemove.gt(liquidity)) {
-    throw new Error('Liquidity is not enough after migration');
-  }
-  let busdRepay;
-  /* Piggy requires (bnbBalance * bnbPrice) / (busdBorrowBalance * busdPrice) > 110 / 100  */
-  if (bnbBalance.mul(bnbPrice).mul(100).gt(busdBorrowBalance.mul(busdPrice).mul(110))) {
-    busdRepay = busdBorrowBalance;
-  } else {
-    // throw new Error('Collateral ratio must be greater than 110% for Piggy');
+  // 为了检测合约健壮性, 禁用这两个检查
+  // if (busdBorrowBalance.lt(ethers.utils.parseEther('180'))) {
+  //   throw new Error('busdBorrowBalance must be greater than minimum');
+  // }
+  // if (liquidityToRemove.gt(liquidity.mul(101).div(100))) {
+  //   // 预检查阶段允许 1% 的误差
+  //   throw new Error('Liquidity is not enough after migration');
+  // }
+  let busdRepay = busdBorrowBalance;
+  /* Piggy requires (bnbBalance * bnbPrice) / (busdBorrowBalance * busdPrice) >= 110 / 100  */
+  if (bnbBalance.mul(bnbPrice).mul(100).lt(busdRepay.mul(busdPrice).mul(110))) {
     busdRepay = bnbBalance.mul(bnbPrice).mul(100).div(busdPrice.mul(150));
   }
   console.log('[Precheck] busdRepay', ethers.utils.formatEther(busdRepay));
@@ -119,21 +124,14 @@ App.prototype.precheck = async function() {
 App.prototype.execute = async function({
   bnbBalance, vBnbBalance, busdRepay
 }) {
-  /**
-   * 1. 预估一下 bnb 和 pusd 的数量
-   * busd 加上 flashloan 的手续费 0.3% ~ 1%
-   * TODO, flashloan 的手续费还要确认下, 要用 querySellQuote 算出 pusdDebt
-   * uint256 pusdDebt = busdRepay * 101 / 100;
-   */
   const bnbColl = bnbBalance;
-  const pusdDebt = busdRepay.mul(101).div(100);
+  const pusdDebt = busdRepay.mul(101).div(100);  // flashloan 的手续费和滑点 < 1%
 
-  /* 2. approve to vault migration  */
   const VaultMigration = await deployments.get('VaultMigration');
-  await this.vBNB.approve(VaultMigration.address, vBnbBalance.mul(2)).then((tx) => tx.wait());
+  // vBnbBalance 余额是不会变的, 不需要 approve 两倍
+  await this.vBNB.approve(VaultMigration.address, vBnbBalance).then((tx) => tx.wait());
   await this.tokenPUSD.approve(VaultMigration.address, pusdDebt.mul(2)).then((tx) => tx.wait());
 
-  /* 3. execute */
   console.log('[Execute] bnbColl', ethers.utils.formatEther(bnbColl));
   console.log('[Execute] pusdDebt', ethers.utils.formatEther(pusdDebt));
   await this.piggyApp.startMigrate(bnbColl, pusdDebt);
@@ -142,6 +140,7 @@ App.prototype.execute = async function({
 
 /**
  * main process
+ * 可以传一个已经在 venus 有头寸的用户的钱包地址
  * run `npx hardhat revert [snapshotId] --network localhost` to send a `evm_revert` request
  */
 async function shotshotAndRun(publicKey) {
@@ -174,17 +173,17 @@ async function shotshotAndRun(publicKey) {
 }
 
 async function listUsersAndRun() {
-  const borrowers = await VenusApp.listUsers(9040000, 9054000);
+  const borrowers = await VenusApp.listUsers(9170000, 9180000);
   for (let borrower of borrowers) {
     console.log(`---------- ${borrower} ----------`);
     await shotshotAndRun(borrower);
   }
 }
 
-// 可以传一个已经在 venus 有头寸的用户的钱包地址
-// shotshotAndRun('0xD11FBe979Bc85f3c9350571528f50FF6C236cC5C')
-// shotshotAndRun()
+
 listUsersAndRun()
+// shotshotAndRun('0x0A1449Ed539d05990f4879dE851b468f24359978')
+// shotshotAndRun()
   .then(() => process.exit(0))
   .catch(error => {
     console.error(error);

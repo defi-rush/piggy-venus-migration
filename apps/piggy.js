@@ -59,6 +59,7 @@ PiggyApp.prototype.findHintForTrove = async function(bnbColl, pusdDebt) {
  */
 PiggyApp.prototype.startMigrate = async function(bnbColl, pusdDebt) {
   const { VaultMigration, PiggyReward } = await deployments.all();
+  const troveManager = await getContractInstance('PiggyTroveManager', ethers.provider);
   const vaultMigration = new ethers.Contract(VaultMigration.address, VaultMigration.abi, this.userWallet);
   const piggyReward = new ethers.Contract(PiggyReward.address, PiggyReward.abi, this.userWallet);
 
@@ -70,6 +71,10 @@ PiggyApp.prototype.startMigrate = async function(bnbColl, pusdDebt) {
   console.log('[VaultMigration] flashloan starting');
   const res = await vaultMigration.startMigrate(upperHint, lowerHint).then((tx) => tx.wait());
   console.log('[VaultMigration] flashloan end');
+  const troveDebt = await troveManager.getTroveDebt(this.userWallet.address);
+  const troveColl = await troveManager.getTroveColl(this.userWallet.address);
+  console.log('[VaultMigration] troveDebt', ethers.utils.formatEther(troveDebt));
+  console.log('[VaultMigration] troveColl', ethers.utils.formatEther(troveColl));
   const rewardBalance = await piggyReward.balanceOf(this.userWallet.address)
   console.log('[VaultMigration] piggy rewards', ethers.utils.formatEther(rewardBalance));
 }
