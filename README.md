@@ -1,5 +1,37 @@
 # Migrate BNB position from venus to piggy bank
 
+## 调用 startMigrate 开始迁移
+
+合约地址和 ABI: 
+
+https://bscscan.com/address/0x034563d799c80345ff9dee0adfa7134471db37d1#code
+
+```js
+// ethers.js
+const address = '0x034563d799c80345ff9dee0adfa7134471db37d1';
+const abi = ['function startMigrate(address _upperHint, address _lowerHint)'];
+const contract = ethers.Contract(address, abi, provider);
+await contract.startMigrate(_upperHint, _lowerHint).then((tx) => tx.wait());
+```
+
+1. 前端在检查 Venus 的头寸并预估 BNB 和 PUSD 的数量以后，通过 piggy 的 `HintHelpers` 计算一下 `_upperHint` 和 `_lowerHint`，可以节省一点 gas。这两个参数也可以直接传用户的钱包地址。
+2. 需要提前 approve vBNB 和 approve PUSD，其中 approve vBNB 的数量只要当前的余额就行，但是 approve PUSD 的数量最好在预估出来的数量上再多加 10%。
+
+## 迁移奖励 PIGGY
+
+这个合约记录了 PIGGY 的奖励，上线的时候需要留意该合约下 PIGGY 的余额。
+
+https://bscscan.com/address/0x772316bc8ab68435782c49ddd69c594377a57524
+
+合约用 BEP-20 (mrPIGGY) 来对未领取奖励计数。
+
+用户迁移完成后，如果该合约地址上 PIGGY 余额足够，会直接把 PIGGY 转给用户。否则会以 1:1 的比例 mint 相同数量（现在是 100）的 mrPIGGY 给用户，然后我们这边通过 https://bscscan.com/token/0x772316bc8ab68435782c49ddd69c594377a57524#balances 来查看这些人。
+
+给合约转入 PIGGY 以后，可以通过 `claimRewardOnBehalfOf(address[] memory _tos)` 方法来把 PIGGY 补发给 `_tos` 里面列出来的所有用户，发完后会销毁他们的 mrPIGGY。
+
+
+# 在本地测试合约
+
 ## Getting contract addressses
 
 Deployed addresses can be obtained by running:
