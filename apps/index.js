@@ -173,7 +173,7 @@ async function shotshotAndRun(publicKey) {
 }
 
 async function listUsersAndRun() {
-  const borrowers = await VenusApp.listUsers(9170000, 9180000);
+  const borrowers = await VenusApp.listUsers(9170000, 9188200);
   for (let borrower of borrowers) {
     console.log(`---------- ${borrower} ----------`);
     await shotshotAndRun(borrower);
@@ -182,7 +182,7 @@ async function listUsersAndRun() {
 
 
 // listUsersAndRun()
-// shotshotAndRun('0x0A1449Ed539d05990f4879dE851b468f24359978')
+// shotshotAndRun('0x4a3e40B76a946495a6255B521240487e71f73d2C')
 shotshotAndRun()
   .then(() => process.exit(0))
   .catch(error => {
