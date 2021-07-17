@@ -143,7 +143,7 @@ App.prototype.execute = async function({
  * 可以传一个已经在 venus 有头寸的用户的钱包地址
  * run `npx hardhat revert [snapshotId] --network localhost` to send a `evm_revert` request
  */
-async function shotshotAndRun(publicKey) {
+async function snapshotAndRun(publicKey) {
   if (network.name !== 'localhost') {
     throw new Error('This script only works on localhost');
   }
@@ -176,14 +176,14 @@ async function listUsersAndRun() {
   const borrowers = await VenusApp.listUsers(9170000, 9188200);
   for (let borrower of borrowers) {
     console.log(`---------- ${borrower} ----------`);
-    await shotshotAndRun(borrower);
+    await snapshotAndRun(borrower);
   }
 }
 
 
 // listUsersAndRun()
-// shotshotAndRun('0x4a3e40B76a946495a6255B521240487e71f73d2C')
-shotshotAndRun()
+// snapshotAndRun('0x4a3e40B76a946495a6255B521240487e71f73d2C')
+snapshotAndRun()
   .then(() => process.exit(0))
   .catch(error => {
     console.error(error);
