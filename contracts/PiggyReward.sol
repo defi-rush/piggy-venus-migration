@@ -76,7 +76,7 @@ contract PiggyReward is ERC20 {
         require(msg.sender == governance, "!governance");
         for (uint256 i; i<_tos.length; i++) {
             address _to = _tos[i];
-            uint256 _amount = tokenPiggy.balanceOf(_to);
+            uint256 _amount = balanceOf(_to);
             if (_amount > 0) {
                 _transferOut(_to, _amount);
             }

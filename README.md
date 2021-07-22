@@ -21,11 +21,11 @@ await contract.startMigrate(_upperHint, _lowerHint).then((tx) => tx.wait());
 
 这个合约记录了 PIGGY 的奖励，上线的时候需要留意该合约下 PIGGY 的余额。
 
-https://bscscan.com/address/0x772316bc8ab68435782c49ddd69c594377a57524
+https://bscscan.com/address/0xC5073d5eEe8baD2A14aAFB677E44B9177f8dF60a
 
 合约用 BEP-20 (mrPIGGY) 来对未领取奖励计数。
 
-用户迁移完成后，如果该合约地址上 PIGGY 余额足够，会直接把 PIGGY 转给用户。否则会以 1:1 的比例 mint 相同数量（现在是 100）的 mrPIGGY 给用户，然后我们这边通过 https://bscscan.com/token/0x772316bc8ab68435782c49ddd69c594377a57524#balances 来查看这些人。
+用户迁移完成后，如果该合约地址上 PIGGY 余额足够，会直接把 PIGGY 转给用户。否则会以 1:1 的比例 mint 相同数量（现在是 100）的 mrPIGGY 给用户，然后我们这边通过 https://bscscan.com/token/0xC5073d5eEe8baD2A14aAFB677E44B9177f8dF60a#balances 来查看这些人。
 
 给合约转入 PIGGY 以后，可以通过 `claimRewardOnBehalfOf(address[] memory _tos)` 方法来把 PIGGY 补发给 `_tos` 里面列出来的所有用户，发完后会销毁他们的 mrPIGGY。
 

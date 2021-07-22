@@ -58,6 +58,10 @@ module.exports = {
       timeout: 20 * 60 * 1000,
       // 这个 timeout 是 JsonRpcProvider 的 ConnectionInfo 用的
     },
+    piggyDev: {
+      url: 'https://piggy-dev.heidian.io/',
+      timeout: 20 * 60 * 1000,
+    },
     bsc: {
       // 56
       url: 'https://bsc-dataseed.binance.org/',
