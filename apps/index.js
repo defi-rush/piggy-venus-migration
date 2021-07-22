@@ -49,8 +49,8 @@ App.prototype.prepareVenusPositions = async function() {
   await faucet.requestBNB(20);
   await this.venusApp.initMarketWithMultipleAssets(
     /* 将清空所有头寸 */
-    { 'vBNB': 1200 },  // collaterals
-    { 'vBUSD': 900 },  // debts
+    { 'vBNB': 400 },  // collaterals
+    { 'vBUSD': 200 },  // debts
     /* Piggy 最小 pusd debt 不满足 */
     // { 'vBNB': 225, 'vETH': 200 },  // collaterals
     // { 'vBUSD': 178 },  // debts
@@ -182,7 +182,7 @@ async function listUsersAndRun() {
 
 
 // listUsersAndRun()
-snapshotAndRun('0x85981B5db760B73FA8A6AA790c27a2C9e1BaB475')
+snapshotAndRun('0x8f3a94725a7686055d1aaba8a41be506c5dfd079')
 // snapshotAndRun()
   .then(() => process.exit(0))
   .catch(error => {

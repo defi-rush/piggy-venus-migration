@@ -107,10 +107,12 @@ contract VaultMigration is IDODOCallee {
     function _clearVenusPositions(
         address borrower, uint256 busdRepay, uint256 vBnbBalance
     ) internal {
-        vBUSD.repayBorrowBehalf(borrower, busdRepay);
+        uint256 _r1 = vBUSD.repayBorrowBehalf(borrower, busdRepay);
+        require(_r1 == 0, "failed repay BUSD");
         bool _success = vBNB.transferFrom(borrower, address(this), vBnbBalance);
         require(_success, "failed transfer vBNB to VaultMigration");
-        vBNB.redeem(vBnbBalance);
+        uint256 _r2 = vBNB.redeem(vBnbBalance);
+        require(_r2 == 0, "failed redeem BNB");
     }
 
     /**
@@ -201,7 +203,8 @@ contract VaultMigration is IDODOCallee {
         uint256 busdRepay = vInfo.busdBorrowBalance;
         uint256 _bnbValue = vInfo.bnbBalance * vInfo.bnbPrice;
         if (_bnbValue * 100 <= (busdRepay + _reserve) * vInfo.busdPrice * _minCR) {
-            busdRepay = _bnbValue * 100 / (vInfo.busdPrice * 150) - _reserve; // 150 是拍脑袋想的
+            // 150 是拍脑袋想的, 并且这里可能出现负数
+            busdRepay = _bnbValue * 100 / (vInfo.busdPrice * 150) - _reserve;
         }
         if (busdRepay < _minNetDebt) busdRepay = _minNetDebt;
         return busdRepay;
